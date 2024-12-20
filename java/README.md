@@ -6,34 +6,61 @@
 
 ## 구동환경
 
-*  Java : 11
-*  maven : 3.6.3
-*  OS : Window 10, Centos 7.5
+*  Java : 17 이상
+*  maven : 3.6.3 이상
+*  OS : Window 10, Centos 7.5 이상
+
+## How to Build
+
+- 빌드하기 위해서 테스트 과정을 생략하는 옵션을 추가해야 합니다.
+
+``` shell
+mvn clean package -DskipTests
+```
 
 ## 테스트 방법
 
-## Window
+### mvn으로 테스트할 경우
+#### Window
 
 ``` bat
 @REM 설정파일 경로
 SET S3TESTS_INI=sample.ini
 call mvn clean
 call mvn test surefire-report:report
-.\junit-merger.exe target/surefire-reports > xunit-to-html-master\Result_java.xml
+.\junit-merger.exe target/results > xunit-to-html-master\Result_java.xml
 cd xunit-to-html-master
 java -jar saxon9he.jar -o:Result_java.html -s:Result_java.xml -xsl:xunit_to_html.xsl
 start Result_java.html
 ```
 
-## Linux
+#### Linux
+
 ``` bash
 #설정파일 경로
 export S3TESTS_INI=sample.ini
 mvn clean
 mvn test surefire-report:report
-python ./merge_junit_results.py ./target/surefire-reports/*.xml > ../xunit-to-html-master/Result_java.xml
+python ./merge_junit_results.py ./target/results/*.xml > ../xunit-to-html-master/Result_java.xml
 cd ../xunit-to-html-master
 java -jar saxon9he.jar -o:Result_java.html -s:Result_java.xml -xsl:xunit_to_html.xsl
+```
+
+### 빌드한 경우
+
+- 빌드한 프로그램으로 테스트 할 경우 레포트는 생성할 수 없습니다.
+- 테스트 결과가 콘솔창에 출력됩니다.
+
+#### Windows
+``` shell
+SET S3TESTS_INI=sample.ini
+java -jar s3tests-java
+```
+
+#### Linux
+``` shell
+export S3TESTS_INI=sample.ini
+./s3tests-java
 ```
 
 ## 테스트 결과 레포트

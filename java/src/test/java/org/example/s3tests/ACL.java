@@ -1,8 +1,8 @@
 /*
 * Copyright (c) 2021 PSPACE, inc. KSAN Development Team ksan@pspace.co.kr
 * KSAN is a suite of free software: you can redistribute it and/or modify it under the terms of
-* the GNU General Public License as published by the Free Software Foundation, either version 
-* 3 of the License.  See LICENSE for details
+* the GNU General Public License as published by the Free Software Foundation, either version
+* 3 of the License. See LICENSE for details
 *
 * 본 프로그램 및 관련 소스코드, 문서 등 모든 자료는 있는 그대로 제공이 됩니다.
 * KSAN 프로젝트의 개발자 및 개발사는 이 프로그램을 사용한 결과에 따른 어떠한 책임도 지지 않습니다.
@@ -10,383 +10,386 @@
 */
 package org.example.s3tests;
 
-import static org.junit.jupiter.api.Assertions.assertEquals;
-import static org.junit.jupiter.api.Assertions.assertThrows;
-
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-import com.amazonaws.AmazonServiceException;
-import com.amazonaws.HttpMethod;
-import com.amazonaws.services.s3.model.CannedAccessControlList;
-import com.amazonaws.services.s3.model.GetObjectRequest;
-import com.amazonaws.services.s3.model.ResponseHeaderOverrides;
+class ACL {
+	org.example.test.ACL test = new org.example.test.ACL();
+	org.example.testV2.ACL testV2 = new org.example.testV2.ACL();
 
-public class ACL extends TestBase
-{
-    @Test
-	@DisplayName("test_object_raw_get")
-    @Tag("Get")
-    //@Tag("[Bucket_ACL = public-read, Object_ACL = public-read] 권한없는 사용자가 오브젝트에 접근 가능한지 확인")
-    public void test_object_raw_get()
-    {
-        var Key = "foo";
-        var BucketName = SetupBucketObjectACL(CannedAccessControlList.PublicRead, CannedAccessControlList.PublicRead, Key);
+	@AfterEach
+	public void clear(TestInfo testInfo) {
+		test.clear(testInfo);
+		testV2.clear(testInfo);
+	}
 
-        var UnauthenticatedClient = GetUnauthenticatedClient();
-        UnauthenticatedClient.getObject(BucketName, Key);
-    }
+	@Test
+	@Tag("Access")
+	// [Bucket = private, Object = private] 오브젝트에 접근 가능한지 확인
+	void testPrivateBucketAndObject() {
+		test.testPrivateBucketAndObject();
+		testV2.testPrivateBucketAndObject();
+	}
 
-    @Test
-	@DisplayName("test_object_raw_get_bucket_gone")
-    @Tag("Get")
-    //@Tag("[Bucket_ACL = public-read, Object_ACL = public-read] 권한없는 사용자가 삭제된 버킷의 삭제된 오브젝트에 접근할때 에러 확인")
-    public void test_object_raw_get_bucket_gone()
-    {
-        var Key = "foo";
-        var BucketName = SetupBucketObjectACL(CannedAccessControlList.PublicRead, CannedAccessControlList.PublicRead, Key);
-        var Client = GetClient();
+	@Test
+	@Tag("Access")
+	// [Bucket = private, Object = public-read] 오브젝트에 접근 가능한지 확인
+	void testPrivateBucketPublicReadObject() {
+		test.testPrivateBucketPublicReadObject();
+		testV2.testPrivateBucketPublicReadObject();
+	}
 
-        Client.deleteObject(BucketName, Key);
-        Client.deleteBucket(BucketName);
+	@Test
+	@Tag("Access")
+	// [Bucket = private, Object = public-read-write] 오브젝트에 접근 가능한지 확인
+	void testPrivateBucketPublicRWObject() {
+		test.testPrivateBucketPublicRWObject();
+		testV2.testPrivateBucketPublicRWObject();
+	}
 
-        var UnauthenticatedClient = GetUnauthenticatedClient();
-        var e = assertThrows(AmazonServiceException.class, ()-> UnauthenticatedClient.getObject(BucketName, Key));
-        var StatusCode = e.getStatusCode();
-        var ErrorCode = e.getErrorCode();
+	@Test
+	@Tag("Access")
+	// [Bucket = private, Object = authenticated-read] 오브젝트에 접근 가능한지 확인
+	void testPrivateBucketAuthenticatedReadObject() {
+		test.testPrivateBucketAuthenticatedReadObject();
+		testV2.testPrivateBucketAuthenticatedReadObject();
+	}
 
-        assertEquals(404, StatusCode);
-        assertEquals(MainData.NoSuchBucket, ErrorCode);
-        DeleteBucketList(BucketName);
-    }
+	@Test
+	@Tag("Access")
+	// [Bucket = private, Object = bucket-owner-read] 오브젝트에 접근 가능한지 확인
+	void testPrivateBucketBucketOwnerReadObject() {
+		test.testPrivateBucketBucketOwnerReadObject();
+		testV2.testPrivateBucketBucketOwnerReadObject();
+	}
 
-    @Test
-	@DisplayName("test_object_delete_key_bucket_gone")
-    @Tag("Delete")
-    //@Tag("[Bucket_ACL = public-read, Object_ACL = public-read] 권한없는 사용자가 삭제된 버킷의 삭제된 오브젝트를 삭제할때 에러 확인")
-    public void test_object_delete_key_bucket_gone()
-    {
-        var Key = "foo";
-        var BucketName = SetupBucketObjectACL(CannedAccessControlList.PublicRead, CannedAccessControlList.PublicRead, Key);
-        var Client = GetClient();
+	@Test
+	@Tag("Access")
+	// [Bucket = private, Object = bucket-owner-full-control] 오브젝트에 접근 가능한지 확인
+	void testPrivateBucketBucketOwnerFullControlObject() {
+		test.testPrivateBucketBucketOwnerFullControlObject();
+		testV2.testPrivateBucketBucketOwnerFullControlObject();
+	}
 
-        Client.deleteObject(BucketName, Key);
-        Client.deleteBucket(BucketName);
+	@Test
+	@Tag("Access")
+	// [Bucket = public-read, Object = private] 오브젝트에 접근 가능한지 확인
+	void testPublicReadBucketPrivateObject() {
+		test.testPublicReadBucketPrivateObject();
+		testV2.testPublicReadBucketPrivateObject();
+	}
 
-        var UnauthenticatedClient = GetUnauthenticatedClient();
-        var e = assertThrows(AmazonServiceException.class, ()-> UnauthenticatedClient.deleteObject(BucketName, Key));
-        var StatusCode = e.getStatusCode();
-        var ErrorCode = e.getErrorCode();
+	@Test
+	@Tag("Access")
+	// [Bucket = public-read, Object = public-read] 오브젝트에 접근 가능한지 확인
+	void testPublicReadBucketAndObject() {
+		test.testPublicReadBucketAndObject();
+		testV2.testPublicReadBucketAndObject();
+	}
 
-        assertEquals(404, StatusCode);
-        assertEquals(MainData.NoSuchBucket, ErrorCode);
-        DeleteBucketList(BucketName);
-    }
+	@Test
+	@Tag("Access")
+	// [Bucket = public-read, Object = public-read-write] 오브젝트에 접근 가능한지 확인
+	void testPublicReadBucketPublicRWObject() {
+		test.testPublicReadBucketPublicRWObject();
+		testV2.testPublicReadBucketPublicRWObject();
+	}
 
-    @Test
-	@DisplayName("test_object_raw_get_object_gone")
-    @Tag("Get")
-    //@Tag("[Bucket_ACL = public-read, Object_ACL = public-read] 권한없는 사용자가 삭제된 오브젝트에 접근할때 에러 확인")
-    public void test_object_raw_get_object_gone()
-    {
-        var Key = "foo";
-        var BucketName = SetupBucketObjectACL(CannedAccessControlList.PublicRead, CannedAccessControlList.PublicRead, Key);
-        var Client = GetClient();
+	@Test
+	@Tag("Access")
+	// [Bucket = public-read, Object = authenticated-read] 오브젝트에 접근 가능한지 확인
+	void testPublicReadBucketAuthenticatedReadObject() {
+		test.testPublicReadBucketAuthenticatedReadObject();
+		testV2.testPublicReadBucketAuthenticatedReadObject();
+	}
 
-        Client.deleteObject(BucketName, Key);
+	@Test
+	@Tag("Access")
+	// [Bucket = public-read, Object = bucket-owner-read] 오브젝트에 접근 가능한지 확인
+	void testPublicReadBucketBucketOwnerReadObject() {
+		test.testPublicReadBucketBucketOwnerReadObject();
+		testV2.testPublicReadBucketBucketOwnerReadObject();
+	}
 
-        var UnauthenticatedClient = GetUnauthenticatedClient();
-        var e = assertThrows(AmazonServiceException.class, ()-> UnauthenticatedClient.getObject(BucketName, Key));
-        var StatusCode = e.getStatusCode();
-        var ErrorCode = e.getErrorCode();
+	@Test
+	@Tag("Access")
+	// [Bucket = public-read, Object = bucket-owner-full-control] 오브젝트에 접근 가능한지 확인
+	void testPublicReadBucketBucketOwnerFullControlObject() {
+		test.testPublicReadBucketBucketOwnerFullControlObject();
+		testV2.testPublicReadBucketBucketOwnerFullControlObject();
+	}
 
-        assertEquals(404, StatusCode);
-        assertEquals(MainData.NoSuchKey, ErrorCode);
-    }
+	@Test
+	@Tag("Access")
+	// [Bucket = public-read-write, Object = private] 오브젝트에 접근 가능한지 확인
+	void testPublicRWBucketPrivateObject() {
+		test.testPublicRWBucketPrivateObject();
+		testV2.testPublicRWBucketPrivateObject();
+	}
 
-    @Test
-	@DisplayName("test_object_raw_get_bucket_acl")
-    @Tag("Get")
-    //@Tag("[Bucket_ACL = private, Object_ACL = public-read] 권한없는 사용자가 개인버킷의 공용 오브젝트에 접근 가능한지 확인")
-    public void test_object_raw_get_bucket_acl()
-    {
-        var Key = "foo";
-        var BucketName = SetupBucketObjectACL(CannedAccessControlList.Private, CannedAccessControlList.PublicRead, Key);
+	@Test
+	@Tag("Access")
+	// [Bucket = public-read-write, Object = private, AltUser] 오브젝트에 접근 가능한지 확인
+	void testPublicRWBucketPrivateObjectByAltUser() {
+		test.testPublicRWBucketPrivateObjectByAltUser();
+		testV2.testPublicRWBucketPrivateObjectByAltUser();
+	}
 
-        var UnauthenticatedClient = GetUnauthenticatedClient();
-        UnauthenticatedClient.getObject(BucketName, Key);
-    }
+	@Test
+	@Tag("Access")
+	// [Bucket = public-read-write, Object = public-read] 오브젝트에 접근 가능한지 확인
+	void testPublicRWBucketPublicReadObject() {
+		test.testPublicRWBucketPublicReadObject();
+		testV2.testPublicRWBucketPublicReadObject();
+	}
 
-    @Test
-	@DisplayName("test_object_raw_get_object_acl")
-    @Tag("Get")
-    //@Tag("[Bucket_ACL = public-read, Object_ACL = private] 권한없는 사용자가 공용버킷의 개인 오브젝트에 접근할때 에러확인")
-    public void test_object_raw_get_object_acl()                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                   
-    {
-        var Key = "foo";
-        var BucketName = SetupBucketObjectACL(CannedAccessControlList.PublicRead, CannedAccessControlList.Private, Key);
+	@Test
+	@Tag("Access")
+	// [Bucket = public-read-write, Object = public-read, AltUser] 오브젝트에 접근 가능한지 확인
+	void testPublicRWBucketPublicReadObjectByAltUser() {
+		test.testPublicRWBucketPublicReadObjectByAltUser();
+		testV2.testPublicRWBucketPublicReadObjectByAltUser();
+	}
 
-        var UnauthenticatedClient = GetUnauthenticatedClient();
-        var e = assertThrows(AmazonServiceException.class, ()-> UnauthenticatedClient.getObject(BucketName, Key));
-        var StatusCode = e.getStatusCode();
-        var ErrorCode = e.getErrorCode();
+	@Test
+	@Tag("Access")
+	// [Bucket = public-read-write, Object = public-read-write] 오브젝트에 접근 가능한지 확인
+	void testPublicRWBucketPublicRWObject() {
+		test.testPublicRWBucketPublicRWObject();
+		testV2.testPublicRWBucketPublicRWObject();
+	}
 
-        assertEquals(403, StatusCode);
-        assertEquals(MainData.AccessDenied, ErrorCode);
-    }
+	@Test
+	@Tag("Access")
+	// [Bucket = public-read-write, Object = public-read-write, AltUser]
+	// 오브젝트에 접근 가능한지 확인
+	void testPublicRWBucketPublicRWObjectByAltUser() {
+		test.testPublicRWBucketPublicRWObjectByAltUser();
+		testV2.testPublicRWBucketPublicRWObjectByAltUser();
+	}
 
-    @Test
-	@DisplayName("test_object_raw_authenticated")
-    @Tag("Get")
-    //@Tag("[Bucket_ACL = public-read, Object_ACL = public-read] 로그인한 사용자가 공용 버킷의 공용 오브젝트에 접근 가능한지 확인")
-    public void test_object_raw_authenticated()
-    {
-        var Key = "foo";
-        var BucketName = SetupBucketObjectACL(CannedAccessControlList.PublicRead, CannedAccessControlList.PublicRead, Key);
+	@Test
+	@Tag("Access")
+	// [Bucket = public-read-write, Object = authenticated-read] 오브젝트에 접근 가능한지 확인
+	void testPublicRWBucketAuthenticatedReadObject() {
+		test.testPublicRWBucketAuthenticatedReadObject();
+		testV2.testPublicRWBucketAuthenticatedReadObject();
+	}
 
-        var Client = GetClient();
-        Client.getObject(BucketName, Key);
-    }
+	@Test
+	@Tag("Access")
+	// [Bucket = public-read-write, Object = authenticated-read, AltUser]
+	// 오브젝트에 접근 가능한지 확인
+	void testPublicRWBucketAuthenticatedReadObjectByAltUser() {
+		test.testPublicRWBucketAuthenticatedReadObjectByAltUser();
+		testV2.testPublicRWBucketAuthenticatedReadObjectByAltUser();
+	}
 
-    @Test
-	@DisplayName("test_object_raw_response_headers")
-    @Tag("Header")
-    //@Tag("[Bucket_ACL = priavte, Object_ACL = priavte] 로그인한 사용자가 GetObject의 반환헤더값을 설정하고 개인 오브젝트를 가져올때 반환헤더값이 적용되었는지 확인")
-    public void test_object_raw_response_headers()
-    {
-        var Key = "foo";
-        var BucketName = SetupBucketObjectACL(CannedAccessControlList.Private, CannedAccessControlList.Private, Key);
-        var Client = GetClient();
+	@Test
+	@Tag("Access")
+	// [Bucket = public-read-write, Object = bucket-owner-read] 오브젝트에 접근 가능한지 확인
+	void testPublicRWBucketBucketOwnerReadObject() {
+		test.testPublicRWBucketBucketOwnerReadObject();
+		testV2.testPublicRWBucketBucketOwnerReadObject();
+	}
 
-        var Date = new Date();
-        SimpleDateFormat rfc822format = new SimpleDateFormat("EEE, d MMM yyyy HH:mm:ss 'GMT'", Locale.ENGLISH);
-        //rfc822format.setTimeZone(TimeZone.getTimeZone("UTC"));
-        String Str_Date = rfc822format.format(Date);
+	@Test
+	@Tag("Access")
+	// [Bucket = public-read-write, Object = bucket-owner-read, AltUser]
+	// 오브젝트에 접근 가능한지 확인
+	void testPublicRWBucketBucketOwnerReadObjectByAltUser() {
+		test.testPublicRWBucketBucketOwnerReadObjectByAltUser();
+		testV2.testPublicRWBucketBucketOwnerReadObjectByAltUser();
+	}
 
-        var Response = Client.getObject(new GetObjectRequest(BucketName, Key).withResponseHeaders(
-new ResponseHeaderOverrides()
-        		.withCacheControl("no-cache")
-        		.withContentDisposition("bla")
-        		.withContentEncoding("aaa")
-        		.withContentLanguage("esperanto")
-        		.withContentType("foo/bar")
-        		.withExpires(Str_Date)
-        		));
+	@Test
+	@Tag("Access")
+	// [Bucket = public-read-write, Object = bucket-owner-full-control]
+	// 오브젝트에 접근 가능한지 확인
+	void testPublicRWBucketBucketOwnerFullControlObject() {
+		test.testPublicRWBucketBucketOwnerFullControlObject();
+		testV2.testPublicRWBucketBucketOwnerFullControlObject();
+	}
 
-        assertEquals("no-cache", Response.getObjectMetadata().getCacheControl());
-        assertEquals("bla", Response.getObjectMetadata().getContentDisposition());
-        assertEquals("aaa", Response.getObjectMetadata().getContentEncoding());
-        assertEquals("esperanto", Response.getObjectMetadata().getContentLanguage());
-        assertEquals("foo/bar", Response.getObjectMetadata().getContentType());
-    }
+	@Test
+	@Tag("Access")
+	// [Bucket = public-read-write, Object = bucket-owner-full-control, AltUser]
+	// 오브젝트에 접근 가능한지 확인
+	void testPublicRWBucketBucketOwnerFullControlObjectByAltUser() {
+		test.testPublicRWBucketBucketOwnerFullControlObjectByAltUser();
+		testV2.testPublicRWBucketBucketOwnerFullControlObjectByAltUser();
+	}
 
-    @Test
-	@DisplayName("test_object_raw_authenticated_bucket_acl")
-    @Tag("Get")
-    //@Tag("[Bucket_ACL = private, Object_ACL = public-read] 로그인한 사용자가 개인버킷의 공용 오브젝트에 접근 가능한지 확인")
-    public void test_object_raw_authenticated_bucket_acl()
-    {
-        var Key = "foo";
-        var BucketName = SetupBucketObjectACL(CannedAccessControlList.Private, CannedAccessControlList.PublicRead, Key);
+	@Test
+	@Tag("Access")
+	// [Bucket = public-read-write, BucketOwnerPreferred,
+	// Object = bucket-owner-full-control, AltUser]
+	// 오브젝트에 접근 가능한지 확인
+	void testPublicRWBucketBucketOwnerFullControlObjectByAltUserBucketOwnerPreferred() {
+		test.testPublicRWBucketBucketOwnerFullControlObjectByAltUserBucketOwnerPreferred();
+		testV2.testPublicRWBucketBucketOwnerFullControlObjectByAltUserBucketOwnerPreferred();
+	}
 
-        var Client = GetClient();
-        Client.getObject(BucketName, Key);
-    }
+	@Test
+	@Tag("Access")
+	// [Bucket = authenticated-read, Object = private] 오브젝트에 접근 가능한지 확인
+	void testAuthenticatedReadBucketPrivateObject() {
+		test.testAuthenticatedReadBucketPrivateObject();
+		testV2.testAuthenticatedReadBucketPrivateObject();
+	}
 
-    @Test
-	@DisplayName("test_object_raw_authenticated_object_acl")
-    @Tag("Get")
-    //@Tag("[Bucket_ACL = public-read, Object_ACL = private] 로그인한 사용자가 공용버킷의 개인 오브젝트에 접근 가능한지 확인")
-    public void test_object_raw_authenticated_object_acl()
-    {
-        var Key = "foo";
-        var BucketName = SetupBucketObjectACL(CannedAccessControlList.PublicRead, CannedAccessControlList.Private, Key);
+	@Test
+	@Tag("Access")
+	// [Bucket = authenticated-read, Object = public-read] 오브젝트에 접근 가능한지 확인
+	void testAuthenticatedReadBucketPublicReadObject() {
+		test.testAuthenticatedReadBucketPublicReadObject();
+		testV2.testAuthenticatedReadBucketPublicReadObject();
+	}
 
-        var Client = GetClient();
-        Client.getObject(BucketName, Key);
-    }
+	@Test
+	@Tag("Access")
+	// [Bucket = authenticated-read, Object = public-read-write] 오브젝트에 접근 가능한지 확인
+	void testAuthenticatedReadBucketPublicRWObject() {
+		test.testAuthenticatedReadBucketPublicRWObject();
+		testV2.testAuthenticatedReadBucketPublicRWObject();
+	}
 
-    @Test
-	@DisplayName("test_object_raw_authenticated_bucket_gone")
-    @Tag("Get")
-    //@Tag("[Bucket_ACL = public-read, Object_ACL = public-read] 로그인한 사용자가 삭제된 버킷의 삭제된 오브젝트에 접근할때 에러 확인")
-    public void test_object_raw_authenticated_bucket_gone()
-    {
-        var Key = "foo";
-        var BucketName = SetupBucketObjectACL(CannedAccessControlList.PublicRead, CannedAccessControlList.PublicRead, Key);
-        var Client = GetClient();
+	@Test
+	@Tag("Access")
+	// [Bucket = authenticated-read, Object = authenticated-read] 오브젝트에 접근 가능한지 확인
+	void testAuthenticatedReadBucketAndObject() {
+		test.testAuthenticatedReadBucketAndObject();
+		testV2.testAuthenticatedReadBucketAndObject();
+	}
 
-        Client.deleteObject(BucketName, Key);
-        Client.deleteBucket(BucketName);
+	@Test
+	@Tag("Access")
+	// [Bucket = authenticated-read, Object = bucket-owner-read] 오브젝트에 접근 가능한지 확인
+	void testAuthenticatedReadBucketBucketOwnerReadObject() {
+		test.testAuthenticatedReadBucketBucketOwnerReadObject();
+		testV2.testAuthenticatedReadBucketBucketOwnerReadObject();
+	}
 
-        var e = assertThrows(AmazonServiceException.class, ()-> Client.getObject(BucketName, Key));
-        var StatusCode = e.getStatusCode();
-        var ErrorCode = e.getErrorCode();
+	@Test
+	@Tag("Access")
+	// [Bucket = authenticated-read, Object = bucket-owner-full-control]
+	// 오브젝트에 접근 가능한지 확인
+	void testAuthenticatedReadBucketBucketOwnerFullControlObject() {
+		test.testAuthenticatedReadBucketBucketOwnerFullControlObject();
+		testV2.testAuthenticatedReadBucketBucketOwnerFullControlObject();
+	}
 
-        assertEquals(404, StatusCode);
-        assertEquals(MainData.NoSuchBucket, ErrorCode);
-        DeleteBucketList(BucketName);
-    }
+	@Test
+	@Tag("List")
+	// [Bucket = private] 오브젝트 목록 조회가 가능한지 확인
+	void testPrivateBucketList() {
+		test.testPrivateBucketList();
+		testV2.testPrivateBucketList();
+	}
 
-    @Test
-	@DisplayName("test_object_raw_authenticated_object_gone")
-    @Tag("Get")
-    //@Tag("[Bucket_ACL = public-read, Object_ACL = public-read] 로그인한 사용자가 삭제된 오브젝트에 접근할때 에러 확인")
-    public void test_object_raw_authenticated_object_gone()
-    {
-        var Key = "foo";
-        var BucketName = SetupBucketObjectACL(CannedAccessControlList.PublicRead, CannedAccessControlList.PublicRead, Key);
-        var Client = GetClient();
+	@Test
+	@Tag("List")
+	// [Bucket = public-read] 오브젝트 목록 조회가 가능한지 확인
+	void testPublicReadBucketList() {
+		test.testPublicReadBucketList();
+		testV2.testPublicReadBucketList();
+	}
 
-        Client.deleteObject(BucketName, Key);
+	@Test
+	@Tag("List")
+	// [Bucket = public-read-write] 오브젝트 목록 조회가 가능한지 확인
+	void testPublicRWBucketList() {
+		test.testPublicRWBucketList();
+		testV2.testPublicRWBucketList();
+	}
 
-        var e = assertThrows(AmazonServiceException.class, ()-> Client.getObject(BucketName, Key));
-        var StatusCode = e.getStatusCode();
-        var ErrorCode = e.getErrorCode();
+	@Test
+	@Tag("List")
+	// [Bucket = authenticated-read] 오브젝트 목록 조회가 가능한지 확인
+	void testAuthenticatedReadBucketList() {
+		test.testAuthenticatedReadBucketList();
+		testV2.testAuthenticatedReadBucketList();
+	}
 
-        assertEquals(404, StatusCode);
-        assertEquals(MainData.NoSuchKey, ErrorCode);
-    }
+	@Test
+	@Tag("Permission")
+	// [Bucket = FullControl] 설정한 acl정보대로 서브유저가 해당 버킷에 접근 가능한지 확인
+	void testBucketPermissionAltUserFullControl() {
+		test.testBucketPermissionAltUserFullControl();
+		testV2.testBucketPermissionAltUserFullControl();
+	}
 
-    @Test
-	@DisplayName("test_object_raw_get_x_amz_expires_not_expired")
-    @Tag("Post")
-    //@Tag("[Bucket_ACL = public-read, Object_ACL = public-read] 로그인이 만료되지 않은 사용자가 공용 버킷의 공용 오브젝트에 URL 형식으로 접근 가능한지 확인")
-    public void test_object_raw_get_x_amz_expires_not_expired()
-    {
-        var Key = "foo";
-        var BucketName = SetupBucketObjectACL(CannedAccessControlList.PublicRead, CannedAccessControlList.PublicRead, Key);
-        var Client = GetClient();
+	@Test
+	@Tag("Permission")
+	// [Bucket = Read] 설정한 acl정보대로 서브유저가 해당 버킷에 접근 가능한지 확인
+	void testBucketPermissionAltUserRead() {
+		test.testBucketPermissionAltUserRead();
+		testV2.testBucketPermissionAltUserRead();
+	}
 
-        var Address = Client.generatePresignedUrl(BucketName, Key, GetTimeToAddSeconds(100000), HttpMethod.GET);
-        var Response = GetObject(Address);
+	@Test
+	@Tag("Permission")
+	// [Bucket = ReadAcp] 설정한 acl정보대로 서브유저가 해당 버킷에 접근 가능한지 확인
+	void testBucketPermissionAltUserReadAcp() {
+		test.testBucketPermissionAltUserReadAcp();
+		testV2.testBucketPermissionAltUserReadAcp();
+	}
 
-        assertEquals(200, Response.getStatusLine().getStatusCode());
-    }
+	@Test
+	@Tag("Permission")
+	// [Bucket = Write] 설정한 acl정보대로 서브유저가 해당 버킷에 접근 가능한지 확인
+	void testBucketPermissionAltUserWrite() {
+		test.testBucketPermissionAltUserWrite();
+		testV2.testBucketPermissionAltUserWrite();
+	}
 
-    @Test
-	@DisplayName("test_object_raw_get_x_amz_expires_out_range_zero")
-    @Tag("Post")
-    //@Tag("[Bucket_ACL = public-read, Object_ACL = public-read] 로그인이 만료된 사용자가 공용 버킷의 공용 오브젝트에 URL 형식으로 접근 실패 확인")
-    public void test_object_raw_get_x_amz_expires_out_range_zero()
-    {
-        var Key = "foo";
-        var BucketName = SetupBucketObjectACL(CannedAccessControlList.PublicRead, CannedAccessControlList.PublicRead, Key);
-        var Client = GetClient();
+	@Test
+	@Tag("Permission")
+	// [Bucket = WriteAcp] 설정한 acl정보대로 서브유저가 해당 버킷에 접근 가능한지 확인
+	void testBucketPermissionAltUserWriteAcp() {
+		test.testBucketPermissionAltUserWriteAcp();
+		testV2.testBucketPermissionAltUserWriteAcp();
+	}
 
-        var Address = Client.generatePresignedUrl(BucketName, Key, GetTimeToAddSeconds(0), HttpMethod.GET);
-        var Response = GetObject(Address);
-        assertEquals(403, Response.getStatusLine().getStatusCode());
-    }
+	@Test
+	@Tag("Permission")
+	// [Object = FullControl] 설정한 acl정보대로 서브유저가 해당 오브젝트에 접근 가능한지 확인
+	void testObjectPermissionAltUserFullControl() {
+		test.testObjectPermissionAltUserFullControl();
+		testV2.testObjectPermissionAltUserFullControl();
+	}
 
-    @Test
-	@DisplayName("test_object_raw_get_x_amz_expires_out_positive_range")
-    @Tag("Post")
-    //@Tag("[Bucket_ACL = public-read, Object_ACL = public-read] 로그인 유효주기가 만료된 사용자가 공용 버킷의 공용 오브젝트에 URL 형식으로 접근 실패 확인")
-    public void test_object_raw_get_x_amz_expires_out_positive_range()
-    {
-        var Key = "foo";
-        var BucketName = SetupBucketObjectACL(CannedAccessControlList.PublicRead, CannedAccessControlList.PublicRead, Key);
-        var Client = GetClient();
+	@Test
+	@Tag("Permission")
+	// [Object = Read] 설정한 acl정보대로 서브유저가 해당 오브젝트에 접근 가능한지 확인
+	void testObjectPermissionAltUserRead() {
+		test.testObjectPermissionAltUserRead();
+		testV2.testObjectPermissionAltUserRead();
+	}
 
-        var Address = Client.generatePresignedUrl(BucketName, Key, GetTimeToAddSeconds(0), HttpMethod.GET);
+	@Test
+	@Tag("Permission")
+	// [Object = ReadAcp] 설정한 acl정보대로 서브유저가 해당 오브젝트에 접근 가능한지 확인
+	void testObjectPermissionAltUserReadAcp() {
+		test.testObjectPermissionAltUserReadAcp();
+		testV2.testObjectPermissionAltUserReadAcp();
+	}
 
-        var Response = GetObject(Address);
-        assertEquals(403, Response.getStatusLine().getStatusCode());
-    }
+	@Test
+	@Tag("Permission")
+	// [Object = Write] 설정한 acl정보대로 서브유저가 해당 오브젝트에 접근 가능한지 확인
+	void testObjectPermissionAltUserWrite() {
+		test.testObjectPermissionAltUserWrite();
+		testV2.testObjectPermissionAltUserWrite();
+	}
 
-    @Test
-	@DisplayName("test_object_anon_put")
-    @Tag("Update")
-    //@Tag("[Bucket_ACL = Default, Object_ACL = Default] 로그인한 사용자가 버켓을 만들고 업로드한 오브젝트를 권한없는 사용자가 업데이트하려고 할때 실패 확인")
-    public void test_object_anon_put()
-    {
-        var BucketName = GetNewBucket();
-        var Client = GetClient();
-        var Key = "foo";
-
-        Client.putObject(BucketName, Key, "");
-
-        var UnauthenticatedClient = GetUnauthenticatedClient();
-
-        var e = assertThrows(AmazonServiceException.class, ()-> UnauthenticatedClient.putObject(BucketName, Key, "bar"));
-        var StatusCode = e.getStatusCode();
-        var ErrorCode = e.getErrorCode();
-        assertEquals(403, StatusCode);
-        assertEquals(MainData.AccessDenied, ErrorCode);
-    }
-
-    @Test
-	@DisplayName("test_object_anon_put_write_access")
-    @Tag("Update")
-    //@Tag("[Bucket_ACL = public-read-write] 로그인한 사용자가 공용버켓(w/r)을 만들고 업로드한 오브젝트를 권한없는 사용자가 업데이트했을때 올바르게 적용 되는지 확인")
-    public void test_object_anon_put_write_access()
-    {
-        var BucketName = GetNewBucket();
-        var Client = GetClient();
-        var Key = "foo";
-
-        Client.putObject(BucketName, Key, "");
-
-        var UnauthenticatedClient = GetUnauthenticatedClient();
-
-        var e = assertThrows(AmazonServiceException.class, ()-> UnauthenticatedClient.putObject(BucketName, Key, "bar"));
-        var StatusCode = e.getStatusCode();
-        var ErrorCode = e.getErrorCode();
-        assertEquals(403, StatusCode);
-        assertEquals(MainData.AccessDenied, ErrorCode);
-    }
-
-    @Test
-	@DisplayName("test_object_put_authenticated")
-    @Tag("Default")
-    //@Tag("[Bucket_ACL = Default, Object_ACL = Default] 로그인한 사용자가 버켓을 만들고 업로드")
-    public void test_object_put_authenticated()
-    {
-        var BucketName = GetNewBucket();
-        var Client = GetClient();
-
-        Client.putObject(BucketName, "foo", "foo");
-    }
-
-    @Test
-	@DisplayName("test_object_raw_put_authenticated_expired")
-    @Tag("Default")
-    //@Tag("[Bucket_ACL = Default, Object_ACL = Default] Post방식으로 만료된 로그인 정보를 설정하여 오브젝트 업데이트 실패 확인")
-    public void test_object_raw_put_authenticated_expired()
-    {
-        var BucketName = GetNewBucket();
-        var Client = GetClient();
-        var Key = "foo";
-        Client.putObject(BucketName, Key, "");
-
-        var Address = Client.generatePresignedUrl(BucketName, Key, GetTimeToAddSeconds(0), HttpMethod.PUT);
-
-        var Response = PutObject(Address, null);
-        assertEquals(403, Response.getStatusLine().getStatusCode());
-    }
-    
-    @Test
-	@DisplayName("test_acl_private_bucket_public_read_object")
-    @Tag("Get")
-    //@Tag("[Bucket_ACL = private, Object_ACL = public-read] 모든 사용자가 개인버킷의 공용 오브젝트에 접근 가능한지 확인")
-    public void test_acl_private_bucket_public_read_object()
-    {
-        var Key = "foo";
-        var BucketName = SetupBucketObjectACL(CannedAccessControlList.Private, CannedAccessControlList.PublicRead, Key);
-
-        var Client = GetClient();
-        ACLTest(BucketName, Key, Client, true);
-        
-        var AltClient = GetAltClient();
-        ACLTest(BucketName, Key, AltClient, true);
-
-        var UnauthenticatedClient = GetUnauthenticatedClient();
-        ACLTest(BucketName, Key, UnauthenticatedClient, true);
-    }
+	@Test
+	@Tag("Permission")
+	// [Object = WriteAcp] 설정한 acl정보대로 서브유저가 해당 오브젝트에 접근 가능한지 확인
+	void testObjectPermissionAltUserWriteAcp() {
+		test.testObjectPermissionAltUserWriteAcp();
+		testV2.testObjectPermissionAltUserWriteAcp();
+	}
 }

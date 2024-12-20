@@ -1,8 +1,8 @@
 /*
 * Copyright (c) 2021 PSPACE, inc. KSAN Development Team ksan@pspace.co.kr
 * KSAN is a suite of free software: you can redistribute it and/or modify it under the terms of
-* the GNU General Public License as published by the Free Software Foundation, either version 
-* 3 of the License.  See LICENSE for details
+* the GNU General Public License as published by the Free Software Foundation, either version
+* 3 of the License. See LICENSE for details
 *
 * 본 프로그램 및 관련 소스코드, 문서 등 모든 자료는 있는 그대로 제공이 됩니다.
 * KSAN 프로젝트의 개발자 및 개발사는 이 프로그램을 사용한 결과에 따른 어떠한 책임도 지지 않습니다.
@@ -10,528 +10,228 @@
 */
 package org.example.s3tests;
 
-import static org.junit.Assert.assertThrows;
-import static org.junit.jupiter.api.Assertions.assertEquals;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-
-
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.TestInfo;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-import com.amazonaws.HttpMethod;
-import com.amazonaws.services.s3.model.AmazonS3Exception;
-import com.amazonaws.services.s3.model.CompleteMultipartUploadRequest;
-import com.amazonaws.services.s3.model.InitiateMultipartUploadRequest;
-import com.amazonaws.services.s3.model.ObjectMetadata;
-import com.amazonaws.services.s3.model.PartETag;
-import com.amazonaws.services.s3.model.SSEAlgorithm;
-import com.amazonaws.services.s3.model.ServerSideEncryptionByDefault;
-import com.amazonaws.services.s3.model.ServerSideEncryptionConfiguration;
-import com.amazonaws.services.s3.model.ServerSideEncryptionRule;
-import com.amazonaws.services.s3.model.SetBucketEncryptionRequest;
-import com.amazonaws.services.s3.model.UploadPartRequest;
+class SSE_S3 {
 
-public class SSE_S3 extends TestBase{
-    @Test
-	@DisplayName("test_sse_s3_encrypted_transfer_1b") 
-    @Tag( "PutGet") 
-    //@Tag("1Byte 오브젝트를 SSE-S3 설정하여 업/다운로드가 올바르게 동작하는지 확인") 
-    public void test_sse_s3_encrypted_transfer_1b()
-    {
-        TestEncryptionSSES3ustomerWrite(1);
-    }
+	org.example.test.SSE_S3 test = new org.example.test.SSE_S3();
+	org.example.testV2.SSE_S3 testV2 = new org.example.testV2.SSE_S3();
 
-    @Test
-	@DisplayName("test_sse_s3_encrypted_transfer_1kb") 
-    @Tag( "PutGet") 
-    //@Tag("1KB 오브젝트를 SSE-S3 설정하여 업/다운로드가 올바르게 동작하는지 확인") 
-    public void test_sse_s3_encrypted_transfer_1kb()
-    {
-        TestEncryptionSSES3ustomerWrite(1024);
-    }
+	@AfterEach
+	public void clear(TestInfo testInfo) {
+		test.clear(testInfo);
+		testV2.clear(testInfo);
+	}
 
-    @Test
-	@DisplayName("test_sse_s3_encrypted_transfer_1MB") 
-    @Tag( "PutGet") 
-    //@Tag("1MB 오브젝트를 SSE-S3 설정하여 업/다운로드가 올바르게 동작하는지 확인") 
-    public void test_sse_s3_encrypted_transfer_1MB()
-    {
-        TestEncryptionSSES3ustomerWrite(1024 * 1024);
-    }
+	@Test
+	@Tag("PutGet")
+	//1Byte 오브젝트를 SSE-S3 설정하여 업/다운로드가 올바르게 동작하는지 확인
+	void testSseS3EncryptedTransfer1b() {
+		test.testSseS3EncryptedTransfer1b();
+		testV2.testSseS3EncryptedTransfer1b();
+	}
 
-    @Test
-	@DisplayName("test_sse_s3_encrypted_transfer_13b") 
-    @Tag( "PutGet") 
-    //@Tag("13Byte 오브젝트를 SSE-S3 설정하여 업/다운로드가 올바르게 동작하는지 확인") 
-    public void test_sse_s3_encrypted_transfer_13b()
-    {
-        TestEncryptionSSES3ustomerWrite(13);
-    }
+	@Test
+	@Tag("PutGet")
+	//1KB 오브젝트를 SSE-S3 설정하여 업/다운로드가 올바르게 동작하는지 확인
+	void testSseS3EncryptedTransfer1kb() {
+		test.testSseS3EncryptedTransfer1kb();
+		testV2.testSseS3EncryptedTransfer1kb();
+	}
 
-    @Test
-	@DisplayName("test_sse_s3_encryption_method_head") 
-    @Tag( "Metadata") 
-    //@Tag("SSE-S3 설정하여 업로드한 오브젝트의 헤더정보읽기가 가능한지 확인") 
-    public void test_sse_s3_encryption_method_head()
-    {
-        var BucketName = GetNewBucket();
-        var Client = GetClient();
-        var Key = "testobj";
-        var Data = RandomTextToLong(1000);
-        var Metadata = new ObjectMetadata();
-		Metadata.addUserMetadata("x-amz-meta-foo", "bar");
+	@Test
+	@Tag("PutGet")
+	//1MB 오브젝트를 SSE-S3 설정하여 업/다운로드가 올바르게 동작하는지 확인
+	void testSseS3EncryptedTransfer1MB() {
+		test.testSseS3EncryptedTransfer1MB();
+		testV2.testSseS3EncryptedTransfer1MB();
+	}
 
-        Metadata.setSSEAlgorithm(ObjectMetadata.AES_256_SERVER_SIDE_ENCRYPTION);
+	@Test
+	@Tag("PutGet")
+	//13Byte 오브젝트를 SSE-S3 설정하여 업/다운로드가 올바르게 동작하는지 확인
+	void testSseS3EncryptedTransfer13b() {
+		test.testSseS3EncryptedTransfer13b();
+		testV2.testSseS3EncryptedTransfer13b();
+	}
 
-        Client.putObject(BucketName, Key, CreateBody(Data), Metadata);
+	@Test
+	@Tag("Metadata")
+	//SSE-S3 설정하여 업로드한 오브젝트의 헤더정보읽기가 가능한지 확인
+	void testSseS3EncryptionMethodHead() {
+		test.testSseS3EncryptionMethodHead();
+		testV2.testSseS3EncryptionMethodHead();
+	}
 
-        var Response = Client.getObjectMetadata(BucketName, Key);
-        assertEquals(Metadata.getUserMetadata(), Response.getUserMetadata());
-    }
+	@Test
+	@Tag("Multipart")
+	//멀티파트업로드를 SSE-S3 설정하여 업로드 가능 확인
+	void testSseS3EncryptionMultipartUpload() {
+		test.testSseS3EncryptionMultipartUpload();
+		testV2.testSseS3EncryptionMultipartUpload();
+	}
 
-    @Test
-	@DisplayName("test_sse_s3_encryption_multipart_upload") 
-    @Tag( "Multipart") 
-    //@Tag("멀티파트업로드를 SSE-S3 설정하여 업로드 가능 확인") 
-    public void test_sse_s3_encryption_multipart_upload()
-    {
-    	var BucketName = GetNewBucket();
-        var Client = GetClient();
-        var Key = "multipart_enc";
-        var Size = 30 * MainData.MB;
-        var ContentType = "text/plain";
-        var MetadataList = new ObjectMetadata();
-        MetadataList.addUserMetadata("x-amz-meta-foo", "bar");
-        MetadataList.setSSEAlgorithm(ObjectMetadata.AES_256_SERVER_SIDE_ENCRYPTION);
-        MetadataList.setContentType(ContentType);
+	@Test
+	@Tag("encryption")
+	//버킷의 SSE-S3 설정 확인
+	void testGetBucketEncryption() {
+		test.testGetBucketEncryption();
+		testV2.testGetBucketEncryption();
+	}
 
-        var InitMultiPartResponse = Client
-				.initiateMultipartUpload(new InitiateMultipartUploadRequest(BucketName, Key, MetadataList));
-		var UploadID = InitMultiPartResponse.getUploadId();
-		
-		var Parts = GenerateRandomString(Size, 5 * MainData.MB);
-		var PartETag = new ArrayList<PartETag>();
-		int PartNumber = 1;
-		var Data = "";
-		for (var Part : Parts) {
-			Data += Part;
-			var PartResPonse = Client.uploadPart(new UploadPartRequest().withBucketName(BucketName).withKey(Key)
-					.withUploadId(UploadID).withPartNumber(PartNumber++).withInputStream(CreateBody(Part))
-					.withPartSize(Part.length()));
-			PartETag.add(PartResPonse.getPartETag());
-		}
+	@Test
+	@Tag("encryption")
+	//버킷의 SSE-S3 설정이 가능한지 확인
+	void testPutBucketEncryption() {
+		test.testPutBucketEncryption();
+		testV2.testPutBucketEncryption();
+	}
 
-		Client.completeMultipartUpload(new CompleteMultipartUploadRequest(BucketName, Key, UploadID, PartETag));
-        var HeadResponse = Client.listObjectsV2(BucketName);
-        var ObjectCount = HeadResponse.getKeyCount();
-        assertEquals(1, ObjectCount);
-        var BytesUsed = GetBytesUsed(HeadResponse);
-        assertEquals(Size, BytesUsed);
+	@Test
+	@Tag("encryption")
+	//버킷의 SSE-S3 설정 삭제가 가능한지 확인
+	void testDeleteBucketEncryption() {
+		test.testDeleteBucketEncryption();
+		testV2.testDeleteBucketEncryption();
+	}
 
-        var GetResponse = Client.getObject(BucketName, Key);
-        assertEquals(MetadataList.getUserMetadata(), GetResponse.getObjectMetadata().getUserMetadata());
-        assertEquals(ContentType, GetResponse.getObjectMetadata().getContentType());
-        
-        var Body = GetBody(GetResponse.getObjectContent());
-        assertEquals(Data, Body);
-        assertEquals(Size, GetResponse.getObjectMetadata().getContentLength());
+	@Test
+	@Tag("encryption")
+	//버킷의 SSE-S3 설정이 오브젝트에 반영되는지 확인
+	void testPutBucketEncryptionAndObjectSetCheck() {
+		test.testPutBucketEncryptionAndObjectSetCheck();
+		testV2.testPutBucketEncryptionAndObjectSetCheck();
+	}
 
-        CheckContentUsingRange(BucketName, Key, Data, 1000000);
-        CheckContentUsingRange(BucketName, Key, Data, 10000000);
-		CheckContentUsingRandomRange(BucketName, Key, Data, Size, 100);
-    }
+	@Test
+	@Tag("CopyObject")
+	//버킷에 SSE-S3 설정하여 업로드한 1kb 오브젝트를 복사 가능한지 확인
+	void testCopyObjectEncryption1kb() {
+		test.testCopyObjectEncryption1kb();
+		testV2.testCopyObjectEncryption1kb();
+	}
 
-    @Test
-	@DisplayName("test_get_bucket_encryption") 
-    @Tag("encryption") 
-    //@Tag("버킷의 SSE-S3 설정 확인") 
-    public void test_get_bucket_encryption()
-    {
-        var BucketName = GetNewBucket();
-        var Client = GetClient();
-        
-        assertThrows(AmazonS3Exception.class, () -> Client.getBucketEncryption(BucketName));
-    }
-    
-    @Test
-	@DisplayName("test_put_bucket_encryption") 
-    @Tag("encryption") 
-    @Tag("KSAN")
-    //@Tag("버킷의 SSE-S3 설정이 가능한지 확인") 
-    public void test_put_bucket_encryption()
-    {
-        var BucketName = GetNewBucket();
-        var Client = GetClient();
-        
-        var SSES3Config = new ServerSideEncryptionConfiguration()
-        		.withRules(new ServerSideEncryptionRule()
-        				.withApplyServerSideEncryptionByDefault(new ServerSideEncryptionByDefault().
-        						withSSEAlgorithm(SSEAlgorithm.AES256)));
-        
-        Client.setBucketEncryption(new SetBucketEncryptionRequest().withBucketName(BucketName).withServerSideEncryptionConfiguration(SSES3Config));
-        
-        // var Response = Client.getBucketEncryption(BucketName);
-        // assertEquals(SSES3Config.getRules(), Response.getServerSideEncryptionConfiguration().getRules());
-    }
-    
-    @Test
-	@DisplayName("test_delete_bucket_encryption") 
-    @Tag("encryption") 
-    //@Tag("버킷의 SSE-S3 설정 삭제가 가능한지 확인") 
-    public void test_delete_bucket_encryption()
-    {
-        var BucketName = GetNewBucket();
-        var Client = GetClient();
-        
-        var SSES3Config = new ServerSideEncryptionConfiguration()
-        		.withRules(new ServerSideEncryptionRule()
-        				.withApplyServerSideEncryptionByDefault(new ServerSideEncryptionByDefault().
-        						withSSEAlgorithm(SSEAlgorithm.AES256)));
-        
-        Client.setBucketEncryption(new SetBucketEncryptionRequest().withBucketName(BucketName).withServerSideEncryptionConfiguration(SSES3Config));
-        
-        var Response = Client.getBucketEncryption(BucketName);
-        assertEquals(1, Response.getServerSideEncryptionConfiguration().getRules().size());
-        
-        Client.deleteBucketEncryption(BucketName);
-        
-        assertThrows(AmazonS3Exception.class, () -> Client.getBucketEncryption(BucketName));
-    }
+	@Test
+	@Tag("CopyObject")
+	//버킷에 SSE-S3 설정하여 업로드한 256kb 오브젝트를 복사 가능한지 확인
+	void testCopyObjectEncryption_256kb() {
+		test.testCopyObjectEncryption256kb();
+		testV2.testCopyObjectEncryption256kb();
+	}
 
-    @Test
-	@DisplayName("test_put_bucket_encryption_and_object_set_check") 
-    @Tag("encryption") 
-    //@Tag("버킷의 SSE-S3 설정이 오브젝트에 반영되는지 확인") 
-    public void test_put_bucket_encryption_and_object_set_check()
-    {
-        var BucketName = GetNewBucket();
-        var Client = GetClient();
-        
-        var SSES3Config = new ServerSideEncryptionConfiguration()
-        		.withRules(new ServerSideEncryptionRule()
-        				.withApplyServerSideEncryptionByDefault(new ServerSideEncryptionByDefault().
-        						withSSEAlgorithm(SSEAlgorithm.AES256)));
-        
-        Client.setBucketEncryption(new SetBucketEncryptionRequest().withBucketName(BucketName).withServerSideEncryptionConfiguration(SSES3Config));
-        
-        var Response = Client.getBucketEncryption(BucketName);
-        assertEquals(SSES3Config.getRules(), Response.getServerSideEncryptionConfiguration().getRules());
+	@Test
+	@Tag("CopyObject")
+	//버킷에 SSE-S3 설정하여 업로드한 1mb 오브젝트를 복사 가능한지 확인
+	void testCopyObjectEncryption1mb() {
+		test.testCopyObjectEncryption1mb();
+		testV2.testCopyObjectEncryption1mb();
+	}
 
-		var KeyNames = new ArrayList<>(Arrays.asList(new String[] { "for/bar", "test/" }));
-		CreateObjectsToBody(BucketName, KeyNames, "");
+	@Test
+	@Tag("PutGet")
+	//[버킷에 SSE-S3 설정] 업로드, 다운로드 성공 확인
+	void testSseS3BucketPutGet() {
+		test.testSseS3BucketPutGet();
+		testV2.testSseS3BucketPutGet();
+	}
 
-        var GetResponse = Client.getObject(BucketName, KeyNames.get(0));
-        assertEquals(SSEAlgorithm.AES256.toString(), GetResponse.getObjectMetadata().getSSEAlgorithm());
+	@Test
+	@Tag("PutGet")
+	//[버킷에 SSE-S3 설정, SignatureVersion4] 업로드, 다운로드 성공 확인
+	void testSseS3BucketPutGetV4() {
+		test.testSseS3BucketPutGetV4();
+	}
 
-        var GetHeadResponse = Client.getObjectMetadata(BucketName, KeyNames.get(1));
-        assertEquals(SSEAlgorithm.AES256.toString(), GetHeadResponse.getSSEAlgorithm());
-    }
+	@Test
+	@Tag("PutGet")
+	//[버킷에 SSE-S3 설정, SignatureVersion4, UseChunkEncoding = true] 업로드, 다운로드
+	// 성공 확인
+	void testSseS3BucketPutGetUseChunkEncoding() {
+		test.testSseS3BucketPutGetUseChunkEncoding();
+		testV2.testSseS3BucketPutGetUseChunkEncoding();
+	}
 
-    @Test
-	@DisplayName("test_copy_object_encryption_1kb") 
-    @Tag( "CopyObject") 
-    //@Tag("버킷에 SSE-S3 설정하여 업로드한 1kb 오브젝트를 복사 가능한지 확인") 
-    public void test_copy_object_encryption_1kb()
-    {
-        TestEncryptionSSES3Copy(1024);
-    }
+	@Test
+	@Tag("PutGet")
+	//[버킷에 SSE-S3 설정, SignatureVersion4, UseChunkEncoding = true,
+	// DisablePayloadSigning = true] 업로드, 다운로드 성공 확인
+	void testSseS3BucketPutGetUseChunkEncodingAndDisablePayloadSigning() {
+		test.testSseS3BucketPutGetUseChunkEncodingAndDisablePayloadSigning();
+	}
 
-    @Test
-	@DisplayName("test_copy_object_encryption_256kb") 
-    @Tag( "CopyObject") 
-    //@Tag("버킷에 SSE-S3 설정하여 업로드한 256kb 오브젝트를 복사 가능한지 확인") 
-    public void test_copy_object_encryption_256kb()
-    {
-        TestEncryptionSSES3Copy(256 * 1024);
-    }
+	@Test
+	@Tag("PutGet")
+	//[버킷에 SSE-S3 설정, SignatureVersion4, UseChunkEncoding = false] 업로드, 다운로드
+	// 성공 확인
+	void testSseS3BucketPutGetNotChunkEncoding() {
+		test.testSseS3BucketPutGetNotChunkEncoding();
+		testV2.testSseS3BucketPutGetNotChunkEncoding();
+	}
 
-    @Test
-	@DisplayName("test_copy_object_encryption_1mb") 
-    @Tag( "CopyObject") 
-    //@Tag("버킷에 SSE-S3 설정하여 업로드한 1mb 오브젝트를 복사 가능한지 확인") 
-    public void test_copy_object_encryption_1mb()
-    {
-        TestEncryptionSSES3Copy(1024 * 1024);
-    }
-    
-    @Test
-	@DisplayName("test_sse_s3_bucket_put_get") 
-    @Tag( "PutGet") 
-    //@Tag("[버킷에 SSE-S3 설정] 업로드, 다운로드 성공 확인") 
-    public void test_sse_s3_bucket_put_get()
-    {
-        var BucketName = GetNewBucket();
-        var Client = GetClient();
-        var Data = RandomTextToLong(1000);
-        
-        var SSES3Config = new ServerSideEncryptionConfiguration()
-        		.withRules(new ServerSideEncryptionRule()
-        				.withApplyServerSideEncryptionByDefault(new ServerSideEncryptionByDefault().
-        						withSSEAlgorithm(SSEAlgorithm.AES256)));
-        
-        Client.setBucketEncryption(new SetBucketEncryptionRequest().withBucketName(BucketName).withServerSideEncryptionConfiguration(SSES3Config));
-        
-        var Response = Client.getBucketEncryption(BucketName);
-        assertEquals(SSES3Config.getRules(), Response.getServerSideEncryptionConfiguration().getRules());
+	@Test
+	@Tag("PutGet")
+	//[버킷에 SSE-S3 설정, SignatureVersion4, UseChunkEncoding = false,
+	// DisablePayloadSigning = true] 업로드, 다운로드 성공 확인
+	void testSseS3BucketPutGetNotChunkEncodingAndDisablePayloadSigning() {
+		test.testSseS3BucketPutGetNotChunkEncodingAndDisablePayloadSigning();
+	}
 
-		var Key = "bar";
-		Client.putObject(BucketName, Key, Data);
+	@Test
+	@Tag("PresignedURL")
+	//[버킷에 SSE-S3 설정]PresignedURL로 오브젝트 업로드, 다운로드 성공 확인
+	void testSseS3BucketPresignedUrlPutGet() {
+		test.testSseS3BucketPresignedUrlPutGet();
+		testV2.testSseS3BucketPresignedUrlPutGet();
+	}
 
-        var GetResponse = Client.getObject(BucketName, Key);
-        var Body = GetBody(GetResponse.getObjectContent());
-        assertEquals(SSEAlgorithm.AES256.toString(), GetResponse.getObjectMetadata().getSSEAlgorithm());
-        assertEquals(Data, Body);
-    }
-    
-    @Test
-	@DisplayName("test_sse_s3_bucket_put_get_v4") 
-    @Tag( "PutGet") 
-    //@Tag("[버킷에 SSE-S3 설정, SignatureVersion4] 업로드, 다운로드 성공 확인") 
-    public void test_sse_s3_bucket_put_get_v4()
-    {
-        var BucketName = GetNewBucket();
-        var Client = GetClientV4(true);
-        var Data = RandomTextToLong(1000);
-        
-        var SSES3Config = new ServerSideEncryptionConfiguration()
-        		.withRules(new ServerSideEncryptionRule()
-        				.withApplyServerSideEncryptionByDefault(new ServerSideEncryptionByDefault().
-        						withSSEAlgorithm(SSEAlgorithm.AES256)));
-        
-        Client.setBucketEncryption(new SetBucketEncryptionRequest().withBucketName(BucketName).withServerSideEncryptionConfiguration(SSES3Config));
-        
-        var Response = Client.getBucketEncryption(BucketName);
-        assertEquals(SSES3Config.getRules(), Response.getServerSideEncryptionConfiguration().getRules());
+	@Test
+	@Tag("PresignedURL")
+	//[버킷에 SSE-S3 설정, SignatureVersion4]PresignedURL로 오브젝트 업로드, 다운로드 성공 확인
+	void testSseS3BucketPresignedUrlPutGetV4() {
+		test.testSseS3BucketPresignedUrlPutGetV4();
+		testV2.testSseS3BucketPresignedUrlPutGetV4();
+	}
 
-		var Key = "bar";
-		Client.putObject(BucketName, Key, Data);
+	@Test
+	@Tag("Get")
+	//SSE-S3설정한 오브젝트를 여러번 반복하여 다운로드 성공 확인
+	void testSseS3GetObjectMany() {
+		test.testSseS3GetObjectMany();
+		testV2.testSseS3GetObjectMany();
+	}
 
-        var GetResponse = Client.getObject(BucketName, Key);
-        var Body = GetBody(GetResponse.getObjectContent());
-        assertEquals(SSEAlgorithm.AES256.toString(), GetResponse.getObjectMetadata().getSSEAlgorithm());
-        assertEquals(Data, Body);
-    }
-    
-    @Test
-	@DisplayName("test_sse_s3_bucket_put_get_use_chunk_encoding") 
-    @Tag( "PutGet") 
-    //@Tag("[버킷에 SSE-S3 설정, SignatureVersion4, UseChunkEncoding = true] 업로드, 다운로드 성공 확인") 
-    public void test_sse_s3_bucket_put_get_use_chunk_encoding()
-    {
-        var BucketName = GetNewBucket();
-        var Client = GetClientHttpsV4(true, false);
-        var Data = RandomTextToLong(1000);
-        
-        var SSES3Config = new ServerSideEncryptionConfiguration()
-        		.withRules(new ServerSideEncryptionRule()
-        				.withApplyServerSideEncryptionByDefault(new ServerSideEncryptionByDefault().
-        						withSSEAlgorithm(SSEAlgorithm.AES256)));
-        
-        Client.setBucketEncryption(new SetBucketEncryptionRequest().withBucketName(BucketName).withServerSideEncryptionConfiguration(SSES3Config));
-        
-        var Response = Client.getBucketEncryption(BucketName);
-        assertEquals(SSES3Config.getRules(), Response.getServerSideEncryptionConfiguration().getRules());
+	@Test
+	@Tag("Get")
+	//SSE-S3설정한 오브젝트를 여러번 반복하여 Range 다운로드 성공 확인
+	void testSseS3RangeObjectMany() {
+		test.testSseS3RangeObjectMany();
+		testV2.testSseS3RangeObjectMany();
+	}
 
-		var Key = "bar";
-		Client.putObject(BucketName, Key, Data);
+	@Test
+	@Tag("Multipart")
+	// SSE-S3 설정하여 멀티파트로 업로드한 오브젝트를 multi copy 로 복사 가능한지 확인
+	void testSseS3EncryptionMultipartCopyPartUpload() {
+		test.testSseS3EncryptionMultipartCopyPartUpload();
+		testV2.testSseS3EncryptionMultipartCopyPartUpload();
+	}
 
-        var GetResponse = Client.getObject(BucketName, Key);
-        var Body = GetBody(GetResponse.getObjectContent());
-        assertEquals(SSEAlgorithm.AES256.toString(), GetResponse.getObjectMetadata().getSSEAlgorithm());
-        assertEquals(Data, Body);
-    }
-    
-    @Test
-	@DisplayName("test_sse_s3_bucket_put_get_use_chunk_encoding_and_disable_payload_signing") 
-    @Tag( "PutGet") 
-    //@Tag("[버킷에 SSE-S3 설정, SignatureVersion4, UseChunkEncoding = true, DisablePayloadSigning = true] 업로드, 다운로드 성공 확인") 
-    public void test_sse_s3_bucket_put_get_use_chunk_encoding_and_disable_payload_signing()
-    {
-        var BucketName = GetNewBucket();
-        var Client = GetClientHttpsV4(true, true);
-        var Data = RandomTextToLong(1000);
-        
-        var SSES3Config = new ServerSideEncryptionConfiguration()
-        		.withRules(new ServerSideEncryptionRule()
-        				.withApplyServerSideEncryptionByDefault(new ServerSideEncryptionByDefault().
-        						withSSEAlgorithm(SSEAlgorithm.AES256)));
-        
-        Client.setBucketEncryption(new SetBucketEncryptionRequest().withBucketName(BucketName).withServerSideEncryptionConfiguration(SSES3Config));
-        
-        var Response = Client.getBucketEncryption(BucketName);
-        assertEquals(SSES3Config.getRules(), Response.getServerSideEncryptionConfiguration().getRules());
+	@Test
+	@Tag("Multipart")
+	// SSE-S3 설정하여 Multipart와 Copy Part를 모두 사용하여 오브젝트가 업로드 가능한지 확인
+	void testSseS3EncryptionMultipartCopyMany() {
+		test.testSseS3EncryptionMultipartCopyMany();
+		testV2.testSseS3EncryptionMultipartCopyMany();
+	}
 
-		var Key = "bar";
-		Client.putObject(BucketName, Key, Data);
-
-        var GetResponse = Client.getObject(BucketName, Key);
-        var Body = GetBody(GetResponse.getObjectContent());
-        assertEquals(SSEAlgorithm.AES256.toString(), GetResponse.getObjectMetadata().getSSEAlgorithm());
-        assertEquals(Data, Body);
-    }
-    
-    @Test
-	@DisplayName("test_sse_s3_bucket_put_get_not_chunk_encoding") 
-    @Tag( "PutGet") 
-    //@Tag("[버킷에 SSE-S3 설정, SignatureVersion4, UseChunkEncoding = false] 업로드, 다운로드 성공 확인") 
-    public void test_sse_s3_bucket_put_get_not_chunk_encoding()
-    {
-        var BucketName = GetNewBucket();
-        var Client = GetClientHttpsV4(false, false);
-        var Data = RandomTextToLong(1000);
-        
-        var SSES3Config = new ServerSideEncryptionConfiguration()
-        		.withRules(new ServerSideEncryptionRule()
-        				.withApplyServerSideEncryptionByDefault(new ServerSideEncryptionByDefault().
-        						withSSEAlgorithm(SSEAlgorithm.AES256)));
-        
-        Client.setBucketEncryption(new SetBucketEncryptionRequest().withBucketName(BucketName).withServerSideEncryptionConfiguration(SSES3Config));
-        
-        var Response = Client.getBucketEncryption(BucketName);
-        assertEquals(SSES3Config.getRules(), Response.getServerSideEncryptionConfiguration().getRules());
-
-		var Key = "bar";
-		Client.putObject(BucketName, Key, Data);
-
-        var GetResponse = Client.getObject(BucketName, Key);
-        var Body = GetBody(GetResponse.getObjectContent());
-        assertEquals(SSEAlgorithm.AES256.toString(), GetResponse.getObjectMetadata().getSSEAlgorithm());
-        assertEquals(Data, Body);
-    }
-    
-    @Test
-	@DisplayName("test_sse_s3_bucket_put_get_not_chunk_encoding_and_disable_payload_signing") 
-    @Tag( "PutGet") 
-    //@Tag("[버킷에 SSE-S3 설정, SignatureVersion4, UseChunkEncoding = false, DisablePayloadSigning = true] 업로드, 다운로드 성공 확인") 
-    public void test_sse_s3_bucket_put_get_not_chunk_encoding_and_disable_payload_signing()
-    {
-        var BucketName = GetNewBucket();
-        var Client = GetClientHttpsV4(false, true);
-        var Data = RandomTextToLong(1000);
-        
-        var SSES3Config = new ServerSideEncryptionConfiguration()
-        		.withRules(new ServerSideEncryptionRule()
-        				.withApplyServerSideEncryptionByDefault(new ServerSideEncryptionByDefault().
-        						withSSEAlgorithm(SSEAlgorithm.AES256)));
-        
-        Client.setBucketEncryption(new SetBucketEncryptionRequest().withBucketName(BucketName).withServerSideEncryptionConfiguration(SSES3Config));
-        
-        var Response = Client.getBucketEncryption(BucketName);
-        assertEquals(SSES3Config.getRules(), Response.getServerSideEncryptionConfiguration().getRules());
-
-		var Key = "bar";
-		Client.putObject(BucketName, Key, Data);
-
-        var GetResponse = Client.getObject(BucketName, Key);
-        var Body = GetBody(GetResponse.getObjectContent());
-        assertEquals(SSEAlgorithm.AES256.toString(), GetResponse.getObjectMetadata().getSSEAlgorithm());
-        assertEquals(Data, Body);
-    }
-
-    @Test
-	@DisplayName("test_sse_s3_bucket_presignedurl_put_get")
-    @Tag("PresignedURL")
-    //@Tag("[버킷에 SSE-S3 설정]PresignedURL로 오브젝트 업로드, 다운로드 성공 확인")
-    public void test_sse_s3_bucket_presignedurl_put_get()
-    {
-        var BucketName = GetNewBucket();
-        var Client = GetClient();
-        var Key = "foo";
-
-        var SSES3Config = new ServerSideEncryptionConfiguration()
-        		.withRules(new ServerSideEncryptionRule()
-        				.withApplyServerSideEncryptionByDefault(new ServerSideEncryptionByDefault().
-        						withSSEAlgorithm(SSEAlgorithm.AES256)));
-        
-        Client.setBucketEncryption(new SetBucketEncryptionRequest().withBucketName(BucketName).withServerSideEncryptionConfiguration(SSES3Config));
-        
-        var Response = Client.getBucketEncryption(BucketName);
-        assertEquals(SSES3Config.getRules(), Response.getServerSideEncryptionConfiguration().getRules());
-
-        var PutURL = Client.generatePresignedUrl(BucketName, Key, GetTimeToAddSeconds(100000), HttpMethod.PUT);
-        var PutResponse = PutObject(PutURL, Key);
-        assertEquals(200, PutResponse.getStatusLine().getStatusCode());
-
-        var GetURL = Client.generatePresignedUrl(BucketName, Key, GetTimeToAddSeconds(100000), HttpMethod.GET);
-        var GetResponse = GetObject(GetURL);
-        assertEquals(200, GetResponse.getStatusLine().getStatusCode());
-
-    }
-
-    @Test
-	@DisplayName("test_sse_s3_bucket_presignedurl_put_get_v4")
-    @Tag("PresignedURL")
-    //@Tag("[버킷에 SSE-S3 설정, SignatureVersion4]PresignedURL로 오브젝트 업로드, 다운로드 성공 확인")
-    public void test_sse_s3_bucket_presignedurl_put_get_v4()
-    {
-        var BucketName = GetNewBucket();
-        var Client = GetClientV4(true);
-        var Key = "foo";
-
-        var SSES3Config = new ServerSideEncryptionConfiguration()
-        		.withRules(new ServerSideEncryptionRule()
-        				.withApplyServerSideEncryptionByDefault(new ServerSideEncryptionByDefault().
-        						withSSEAlgorithm(SSEAlgorithm.AES256)));
-        
-        Client.setBucketEncryption(new SetBucketEncryptionRequest().withBucketName(BucketName).withServerSideEncryptionConfiguration(SSES3Config));
-        
-        var Response = Client.getBucketEncryption(BucketName);
-        assertEquals(SSES3Config.getRules(), Response.getServerSideEncryptionConfiguration().getRules());
-
-        var PutURL = Client.generatePresignedUrl(BucketName, Key, GetTimeToAddSeconds(100000), HttpMethod.PUT);
-        var PutResponse = PutObject(PutURL, Key);
-        assertEquals(200, PutResponse.getStatusLine().getStatusCode());
-
-        var GetURL = Client.generatePresignedUrl(BucketName, Key, GetTimeToAddSeconds(100000), HttpMethod.GET);
-        var GetResponse = GetObject(GetURL);
-        assertEquals(200, GetResponse.getStatusLine().getStatusCode());
-    }
-
-    @Test
-	@DisplayName("test_sse_s3_get_object_many")
-    @Tag("Get")
-    //@Tag("SSE-S3설정한 오브젝트를 여러번 반복하여 다운로드 성공 확인")
-    public void test_sse_s3_get_object_many()
-    {
-        var BucketName = GetNewBucket();
-        var Client = GetClient();
-        var Key = "foo";
-        var Data = RandomTextToLong(15 * 1024 * 1024);
-
-        var SSES3Config = new ServerSideEncryptionConfiguration()
-        		.withRules(new ServerSideEncryptionRule()
-        				.withApplyServerSideEncryptionByDefault(new ServerSideEncryptionByDefault().
-        						withSSEAlgorithm(SSEAlgorithm.AES256)));
-        
-        Client.setBucketEncryption(new SetBucketEncryptionRequest().withBucketName(BucketName).withServerSideEncryptionConfiguration(SSES3Config));
-
-        Client.putObject(BucketName, Key, Data);
-        CheckContent(BucketName, Key, Data, 50);
-    }
-    
-    @Test
-	@DisplayName("test_sse_s3_range_object_many")
-    @Tag("Get")
-    //@Tag("SSE-S3설정한 오브젝트를 여러번 반복하여 Range 다운로드 성공 확인")
-    public void test_sse_s3_range_object_many()
-    {
-        var BucketName = GetNewBucket();
-        var Client = GetClient();
-        var Key = "foo";
-        var FileSize = 15 * 1024 * 1024;
-        var Data = RandomTextToLong(FileSize);
-
-        var SSES3Config = new ServerSideEncryptionConfiguration()
-        		.withRules(new ServerSideEncryptionRule()
-        				.withApplyServerSideEncryptionByDefault(new ServerSideEncryptionByDefault().
-        						withSSEAlgorithm(SSEAlgorithm.AES256)));
-        
-        Client.setBucketEncryption(new SetBucketEncryptionRequest().withBucketName(BucketName).withServerSideEncryptionConfiguration(SSES3Config));
-
-        Client.putObject(BucketName, Key, Data);
-        CheckContentUsingRandomRange(BucketName, Key, Data, FileSize, 100);
-    }
+	@Test
+	@Tag("PutGet")
+	//sse-s3설정은 소급적용 되지 않음을 확인
+	void testSseS3NotRetroactive() {
+		test.testSseS3NotRetroactive();
+		testV2.testSseS3NotRetroactive();
+	}
 }
