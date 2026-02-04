@@ -19,6 +19,8 @@ import org.ini4j.Ini;
 
 public class S3Config {
 	public static final String STR_FILENAME = "config.ini";
+	// public static final String STR_FILENAME = "228.ini";
+	// // public static final String STR_FILENAME = "227.ini";
 	// public static final String STR_FILENAME = "awstests.ini";
 	// public static final String STR_FILENAME = "ksan.ini";
 
@@ -33,7 +35,7 @@ public class S3Config {
 	static final String STR_SIGNATURE_VERSION = "SignatureVersion";
 	static final String STR_IS_SECURE = "IsSecure";
 	static final String STR_REGION = "RegionName";
-
+	static final String STR_X_AUTH_TOKEN = "XAuthToken";
 	///////////////////////////////////// Fixtures///////////////////////////////////////////
 	static final String STR_FIXTURES = "Fixtures";
 	static final String STR_BUCKET_PREFIX = "BucketPrefix";
@@ -59,6 +61,7 @@ public class S3Config {
 	public int oldPort;
 	public int sslPort;
 	public String regionName;
+	public String xAuthToken;
 	public String signatureVersion;
 	public boolean isSecure;
 	public String bucketPrefix;
@@ -86,7 +89,7 @@ public class S3Config {
 			regionName = readKeyToString(STR_S3, STR_REGION);
 			signatureVersion = readKeyToString(STR_S3, STR_SIGNATURE_VERSION);
 			isSecure = readKeyToBoolean(STR_S3, STR_IS_SECURE);
-
+			xAuthToken = readKeyToString(STR_S3, STR_X_AUTH_TOKEN);
 			bucketPrefix = readKeyToString(STR_FIXTURES, STR_BUCKET_PREFIX);
 			notDelete = readKeyToBoolean(STR_FIXTURES, STR_BUCKET_DELETE);
 
