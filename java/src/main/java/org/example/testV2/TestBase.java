@@ -221,14 +221,14 @@ public class TestBase {
 				.endpointOverride(URI.create(address));
 
 		// Add X-Auth-Token header if configured
-		if (StringUtils.isNotBlank(config.xAuthToken)) {
+		if (user != null && StringUtils.isNotBlank(user.xAuthToken)) {
 			ClientOverrideConfiguration.Builder configBuilder = ClientOverrideConfiguration.builder();
 			ExecutionInterceptor authTokenInterceptor = new ExecutionInterceptor() {
 				@Override
 				public SdkHttpRequest modifyHttpRequest(Context.ModifyHttpRequest context,
 						ExecutionAttributes executionAttributes) {
 					return context.httpRequest().toBuilder()
-							.putHeader("X-Auth-Token", config.xAuthToken)
+							.putHeader("X-Auth-Token", user.xAuthToken)
 							.build();
 				}
 			};
@@ -328,14 +328,15 @@ public class TestBase {
 				.endpointOverride(URI.create(address));
 
 		// Add X-Auth-Token header if configured
-		if (StringUtils.isNotBlank(config.xAuthToken)) {
+		if (user != null && StringUtils.isNotBlank(user.xAuthToken)) {
 			ClientOverrideConfiguration.Builder configBuilder = ClientOverrideConfiguration.builder();
+			final String finalAuthToken = user.xAuthToken;
 			ExecutionInterceptor authTokenInterceptor = new ExecutionInterceptor() {
 				@Override
 				public SdkHttpRequest modifyHttpRequest(Context.ModifyHttpRequest context,
 						ExecutionAttributes executionAttributes) {
 					return context.httpRequest().toBuilder()
-							.putHeader("X-Auth-Token", config.xAuthToken)
+							.putHeader("X-Auth-Token", finalAuthToken)
 							.build();
 				}
 			};

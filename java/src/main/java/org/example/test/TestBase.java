@@ -212,8 +212,8 @@ public class TestBase {
 		clientBuilder.setPathStyleAccessEnabled(true);
 
 		// Add X-Auth-Token handler if authToken is provided
-		if (StringUtils.isNotBlank(config.xAuthToken)) {
-			clientBuilder.withRequestHandlers(new AuthTokenRequestHandler(config.xAuthToken));
+		if (user != null && StringUtils.isNotBlank(user.xAuthToken)) {
+			clientBuilder.withRequestHandlers(new AuthTokenRequestHandler(user.xAuthToken));
 		}
 
 		return clientBuilder.build();

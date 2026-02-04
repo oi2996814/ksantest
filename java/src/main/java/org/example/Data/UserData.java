@@ -17,6 +17,7 @@ public class UserData {
 	public String accessKey;
 	public String secretKey;
 	public String kms;
+	public String xAuthToken;
 
 	public UserData() {
 		displayName = "";
@@ -25,6 +26,7 @@ public class UserData {
 		accessKey = "";
 		secretKey = "";
 		kms = "";
+		xAuthToken = "";
 	}
 
 	public UserData(String displayName, String userId, String email, String accessKey, String secretKey, String kms) {
@@ -34,6 +36,7 @@ public class UserData {
 		this.accessKey = accessKey;
 		this.secretKey = secretKey;
 		this.kms = kms;
+		this.xAuthToken = "";
 	}
 
 	public com.amazonaws.services.s3.model.Grantee toGrantee() {

@@ -26,7 +26,7 @@ public class S3Config {
 
 	public static final String STR_SIGNATURE_VERSION_V2 = "S3SignerType";
 	public static final String STR_SIGNATURE_VERSION_V4 = "AWSS3V4SignerType";
-	///////////////////////////////////// S3///////////////////////////////////////////
+	/* S3 */
 	static final String STR_S3 = "S3";
 	static final String STR_URL = "URL";
 	static final String STR_PORT = "Port";
@@ -35,13 +35,11 @@ public class S3Config {
 	static final String STR_SIGNATURE_VERSION = "SignatureVersion";
 	static final String STR_IS_SECURE = "IsSecure";
 	static final String STR_REGION = "RegionName";
-	static final String STR_X_AUTH_TOKEN = "XAuthToken";
-	///////////////////////////////////// Fixtures///////////////////////////////////////////
+	/* Fixtures */
 	static final String STR_FIXTURES = "Fixtures";
 	static final String STR_BUCKET_PREFIX = "BucketPrefix";
 	static final String STR_BUCKET_DELETE = "NotDelete";
-	///////////////////////////////////// User
-	///////////////////////////////////// Data///////////////////////////////////////////
+	/* User Data */
 	static final String STR_MAIN_USER = "Main User";
 	static final String STR_ALT_USER = "Alt User";
 
@@ -51,17 +49,17 @@ public class S3Config {
 	static final String STR_ACCESS_KEY = "AccessKey";
 	static final String STR_SECRET_KEY = "SecretKey";
 	static final String STR_KMS = "KMS";
+	static final String STR_X_AUTH_TOKEN = "XAuthToken";
 	static final String STR_BACKEND_USER = "Backend User";
-	/*********************************************************************************************************/
+
 	public final String fileName;
 	final Ini ini = new Ini();
-	/*********************************************************************************************************/
+
 	public String url;
 	public int port;
 	public int oldPort;
 	public int sslPort;
 	public String regionName;
-	public String xAuthToken;
 	public String signatureVersion;
 	public boolean isSecure;
 	public String bucketPrefix;
@@ -89,7 +87,6 @@ public class S3Config {
 			regionName = readKeyToString(STR_S3, STR_REGION);
 			signatureVersion = readKeyToString(STR_S3, STR_SIGNATURE_VERSION);
 			isSecure = readKeyToBoolean(STR_S3, STR_IS_SECURE);
-			xAuthToken = readKeyToString(STR_S3, STR_X_AUTH_TOKEN);
 			bucketPrefix = readKeyToString(STR_FIXTURES, STR_BUCKET_PREFIX);
 			notDelete = readKeyToBoolean(STR_FIXTURES, STR_BUCKET_DELETE);
 
@@ -126,6 +123,7 @@ public class S3Config {
 		user.accessKey = readKeyToString(section, STR_ACCESS_KEY);
 		user.secretKey = readKeyToString(section, STR_SECRET_KEY);
 		user.kms = readKeyToString(section, STR_KMS);
+		user.xAuthToken = readKeyToString(section, STR_X_AUTH_TOKEN);
 
 		return user;
 	}
