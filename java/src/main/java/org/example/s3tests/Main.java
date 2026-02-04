@@ -87,7 +87,7 @@ public class Main {
 		} else {
 			System.out.println("Full Test");
 			request = LauncherDiscoveryRequestBuilder.request()
-					.selectors(DiscoverySelectors.selectPackage(getTestPackageName(null,null)))
+					.selectors(DiscoverySelectors.selectPackage(getTestPackageName(null, null)))
 					.build();
 		}
 
@@ -116,7 +116,7 @@ public class Main {
 		}
 	}
 
-	private static String packageName = "org.example.test";
+	private static String packageName = "org.example.s3tests";
 
 	private static String getTestPackageName(String className, String methodName) {
 		if (className == null)

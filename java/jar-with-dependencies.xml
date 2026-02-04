@@ -28,5 +28,14 @@
       </includes>
       <useDefaultExcludes>true</useDefaultExcludes>
     </fileSet>
+    <fileSet>
+      <directory>${project.build.testOutputDirectory}</directory>
+      <outputDirectory>/</outputDirectory>
+      <includes>
+        <include>**/*.class</include>
+        <include>**/*.properties</include>
+        <include>**/*.xml</include>
+      </includes>
+    </fileSet>
   </fileSets>
 </assembly>
