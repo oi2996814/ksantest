@@ -191,6 +191,15 @@ public class Backend {
 	}
 
 	/**
+	 * [Versioning] DeleteObjects가 정상 동작하는지 확인
+	 */
+	@Test
+	@Tag("DELETE")
+	void testDeleteObjectsVersioning() {
+		testV2.testDeleteObjectsVersioning();
+	}
+
+	/**
 	 * [Versioning] HeadObject가 정상 동작하는지 확인
 	 */
 	@Test

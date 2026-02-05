@@ -448,6 +448,71 @@ public class Backend extends TestBase {
 	}
 
 	/**
+	 * [Versioning] DeleteObjects가 정상 동작하는지 확인
+	 */
+	public void testDeleteObjectsVersioning() {
+		var client = getClient();
+		var backendClient = getBackendClient();
+		var bucketName = createBucket(client);
+		var methodName = "testDeleteObjectsVersioning";
+		var keyNames = java.util.List.of(
+				methodName + "-0",
+				methodName + "-1",
+				methodName + "-2",
+				methodName + "-3",
+				methodName + "-4");
+		var content = "test content";
+
+		// 버저닝 활성화
+		checkConfigureVersioningRetry(bucketName, BucketVersioningStatus.ENABLED);
+
+		// 5개의 파일을 일반 클라이언트로 업로드
+		var versionIds = new java.util.HashMap<String, String>();
+		for (var key : keyNames) {
+			var putResponse = client.putObject(p -> p.bucket(bucketName).key(key), RequestBody.fromString(content));
+			versionIds.put(key, putResponse.versionId());
+		}
+
+		// Backend 클라이언트로 DeleteObjects 삭제 (삭제 마커 생성)
+		var objectList = getKeyVersions(keyNames);
+		var deleteResponse = backendClient.deleteObjects(d -> d.bucket(bucketName).delete(o -> o.objects(objectList)));
+		assertEquals(5, deleteResponse.deleted().size());
+
+		// 일반 클라이언트로 버전 목록 확인 (삭제 마커가 생성됨)
+		var listResponse = client.listObjectVersions(l -> l.bucket(bucketName));
+		assertEquals(5, listResponse.deleteMarkers().size());
+		assertEquals(5, listResponse.versions().size());
+
+		// Backend 클라이언트로 버전 정보 포함하여 DeleteObjects로 삭제
+		var deleteList = new java.util.ArrayList<software.amazon.awssdk.services.s3.model.ObjectIdentifier>();
+
+		// 모든 버전을 삭제 리스트에 추가
+		for (var version : listResponse.versions()) {
+			deleteList.add(software.amazon.awssdk.services.s3.model.ObjectIdentifier.builder()
+					.key(version.key())
+					.versionId(version.versionId())
+					.build());
+		}
+
+		// 모든 삭제 마커를 삭제 리스트에 추가
+		for (var deleteMarker : listResponse.deleteMarkers()) {
+			deleteList.add(software.amazon.awssdk.services.s3.model.ObjectIdentifier.builder()
+					.key(deleteMarker.key())
+					.versionId(deleteMarker.versionId())
+					.build());
+		}
+
+		var finalDeleteResponse = backendClient
+				.deleteObjects(d -> d.bucket(bucketName).delete(o -> o.objects(deleteList)));
+		assertEquals(10, finalDeleteResponse.deleted().size());
+
+		// 일반 클라이언트로 버전 목록 확인 (모두 삭제됨)
+		listResponse = client.listObjectVersions(l -> l.bucket(bucketName));
+		assertEquals(0, listResponse.versions().size());
+		assertEquals(0, listResponse.deleteMarkers().size());
+	}
+
+	/**
 	 * [Versioning] HeadObject가 정상 동작하는지 확인
 	 */
 	public void testHeadObjectVersioning() {
