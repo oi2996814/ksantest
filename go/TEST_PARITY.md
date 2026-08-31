@@ -3,7 +3,7 @@
 기준 스위트: **`java/src/main/java/org/example/testV2`** (베이스). Go는 aws-sdk-go-v2, 단일 `s3tests` 패키지.
 
 ## 요약
-- Java testV2 시나리오 **770**개 ↔ Go 클래스 테스트 **740**개 구현 + Go 전용 헬퍼(`backend`/`s3`) 41개.
+- Java testV2 시나리오 **786**개 ↔ Go 클래스 테스트 **756**개 구현 + Go 전용 헬퍼(`backend`/`s3`) 41개.
 - 미구현 **30**개 = 의도적 비활성 **24** + go-v2 표현 불가 **6**. 전부 사유가 문서/주석에 남아 있음.
 - 명명 규칙: Java `testXxx` ↔ Go `TestXxx` 1:1. Java가 서로 다른 클래스에서 같은 메서드명을 쓰는 경우만 충돌한 쪽에 클래스 접두사(예: `TestListObjectsVersionsVersioningObjListMarker`).
 
@@ -15,6 +15,7 @@
 | Accelerate | 4 | accelerate_test.go | 0 | ③ 의도적 전체 주석 |
 | Access | 6 | access_test.go | 6 | ✅ 일치 |
 | Analytics | 6 | analytics_test.go | 0 | ③ 의도적 전체 주석 |
+| BucketOwner | 16 | bucket_owner_test.go | 16 | ✅ 일치 |
 | CSE | 11 | cse_test.go | 11 | ✅ 일치 |
 | CopyObject | 62 | copy_object_test.go | 62 | ✅ 일치 |
 | Cors | 4 | cors_test.go | 0 | ③ 의도적 전체 주석 |

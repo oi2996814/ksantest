@@ -41,6 +41,7 @@ public class S3Config {
 
 	static final String STR_DISPLAY_NAME = "DisplayName";
 	static final String STR_USER_ID = "UserID";
+	static final String STR_ACCOUNT_ID = "AccountId";
 	static final String STR_EMAIL = "Email";
 	static final String STR_ACCESS_KEY = "AccessKey";
 	static final String STR_SECRET_KEY = "SecretKey";
@@ -115,6 +116,7 @@ public class S3Config {
 
 		user.displayName = readKeyToString(section, STR_DISPLAY_NAME);
 		user.id = readKeyToString(section, STR_USER_ID);
+		user.accountId = readKeyToString(section, STR_ACCOUNT_ID);
 		user.email = readKeyToString(section, STR_EMAIL);
 		user.accessKey = readKeyToString(section, STR_ACCESS_KEY);
 		user.secretKey = readKeyToString(section, STR_SECRET_KEY);

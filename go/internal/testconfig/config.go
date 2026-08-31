@@ -9,7 +9,17 @@ import (
 )
 
 type User struct {
-	DisplayName, ID, Email, AccessKey, SecretKey, KMS, XAuthToken string
+	DisplayName, ID, AccountID, Email, AccessKey, SecretKey, KMS, XAuthToken string
+}
+
+// ExpectedOwnerID는 x-amz-expected-bucket-owner 등 버킷 소유자 검증에 쓰는 아이디다.
+// AWS는 12자리 계정 아이디를 요구하므로 설정에 AccountId가 있으면 그 값을,
+// 없으면(ksan 등) 소유자 아이디를 그대로 사용한다.
+func (u User) ExpectedOwnerID() string {
+	if strings.TrimSpace(u.AccountID) != "" {
+		return u.AccountID
+	}
+	return u.ID
 }
 
 type Config struct {
@@ -55,7 +65,7 @@ func Load(path string) (Config, error) {
 	integer := func(sec, key string) int { n, _ := strconv.Atoi(get(sec, key)); return n }
 	boolean := func(sec, key string) bool { b, _ := strconv.ParseBool(get(sec, key)); return b }
 	user := func(sec string) User {
-		return User{get(sec, "DisplayName"), get(sec, "UserID"), get(sec, "Email"), get(sec, "AccessKey"), get(sec, "SecretKey"), get(sec, "KMS"), get(sec, "XAuthToken")}
+		return User{get(sec, "DisplayName"), get(sec, "UserID"), get(sec, "AccountId"), get(sec, "Email"), get(sec, "AccessKey"), get(sec, "SecretKey"), get(sec, "KMS"), get(sec, "XAuthToken")}
 	}
 	c := Config{
 		URL: get("S3", "URL"), Port: integer("S3", "Port"), OldPort: integer("S3", "OldPort"), SSLPort: integer("S3", "SSLPort"),

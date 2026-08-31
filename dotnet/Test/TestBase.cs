@@ -47,6 +47,12 @@ namespace s3tests.Test
 		public readonly List<string> EmptyList = [];
 		public MainConfig Config { get; private set; }
 		private List<string> BucketList { get; set; }
+
+		/// <summary>버킷 소유자의 아이디. AWS는 계정 아이디, ksan은 사용자 아이디를 사용한다.</summary>
+		public string Owner => Config.MainUser.ExpectedOwnerId;
+
+		/// <summary>버킷 소유자가 아닌 사용자의 아이디</summary>
+		public string WrongOwner => Config.AltUser.ExpectedOwnerId;
 		#endregion
 
 		public enum EncryptionType { NORMAL, SSE_S3, SSE_C };

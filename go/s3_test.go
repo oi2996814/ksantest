@@ -122,6 +122,16 @@ func buildBucketName(prefix, suite string, id ...int) string {
 	return name
 }
 
+// 버킷 소유자의 아이디. AWS는 계정 아이디, ksan은 사용자 아이디를 사용한다.
+func (s *suite) owner() *string {
+	return aws.String(s.cfg.Main.ExpectedOwnerID())
+}
+
+// 버킷 소유자가 아닌 사용자의 아이디
+func (s *suite) wrongOwner() *string {
+	return aws.String(s.cfg.Alt.ExpectedOwnerID())
+}
+
 func (s *suite) bucket(t *testing.T, id ...int) string {
 	t.Helper()
 	name := buildBucketName(s.cfg.BucketPrefix, s.suiteID, id...)

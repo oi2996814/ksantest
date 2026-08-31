@@ -42,6 +42,7 @@ namespace s3tests
 
 		private const string STR_DISPLAY_NAME = "DisplayName";
 		private const string STR_USER_ID = "UserID";
+		private const string STR_ACCOUNT_ID = "AccountId";
 		private const string STR_EMAIL = "Email";
 		private const string STR_ACCESS_KEY = "AccessKey";
 		private const string STR_SECRET_KEY = "SecretKey";
@@ -117,6 +118,7 @@ namespace s3tests
 		{
 			DisplayName = ReadKeyToString(Section, STR_DISPLAY_NAME),
 			UserId = ReadKeyToString(Section, STR_USER_ID),
+			AccountId = ReadKeyToString(Section, STR_ACCOUNT_ID),
 			Email = ReadKeyToString(Section, STR_EMAIL),
 			AccessKey = ReadKeyToString(Section, STR_ACCESS_KEY),
 			SecretKey = ReadKeyToString(Section, STR_SECRET_KEY),

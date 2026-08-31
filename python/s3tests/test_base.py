@@ -204,6 +204,14 @@ class S3TestBase:
     def get_prefix(self) -> str:
         return self.config.bucket_prefix
 
+    def get_owner(self) -> str:
+        """버킷 소유자의 아이디. AWS는 계정 아이디, ksan은 사용자 아이디를 사용한다."""
+        return self.config.main_user.expected_owner_id
+
+    def get_wrong_owner(self) -> str:
+        """버킷 소유자가 아닌 사용자의 아이디"""
+        return self.config.alt_user.expected_owner_id
+
     def get_suite_id(self) -> str:
         """Match Java getSuiteId: class simple name → suite (strip leading Test)."""
         name = self.__class__.__name__

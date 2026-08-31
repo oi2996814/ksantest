@@ -14,6 +14,14 @@ namespace s3tests
 	{
 		public string DisplayName { set; get; }
 		public string UserId { set; get; }
+		public string AccountId { set; get; }
+
+		/// <summary>
+		/// x-amz-expected-bucket-owner 등 버킷 소유자 검증에 사용하는 아이디.
+		/// AWS는 12자리 계정 아이디를 요구하므로 설정에 AccountId가 있으면 그 값을,
+		/// 없으면(ksan 등) 소유자 아이디를 그대로 사용한다.
+		/// </summary>
+		public string ExpectedOwnerId => string.IsNullOrWhiteSpace(AccountId) ? UserId : AccountId;
 		public string Email { set; get; }
 		public string AccessKey { set; get; }
 		public string SecretKey { set; get; }
@@ -29,6 +37,7 @@ namespace s3tests
 		{
 			DisplayName = string.Empty;
 			UserId = string.Empty;
+			AccountId = string.Empty;
 			Email = string.Empty;
 			AccessKey = string.Empty;
 			SecretKey = string.Empty;

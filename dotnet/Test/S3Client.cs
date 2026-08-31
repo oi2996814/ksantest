@@ -1,4 +1,4 @@
-/*
+﻿/*
 * Copyright (c) 2021 PSPACE, inc. KSAN Development Team ksan@pspace.co.kr
 * KSAN is a suite of free software: you can redistribute it and/or modify it under the terms of
 * the GNU General Public License as published by the Free Software Foundation, either version
@@ -995,13 +995,16 @@ namespace s3tests.Test
 			List<KeyValuePair<string, string>> metadataList = null, List<KeyValuePair<string, string>> headerList = null,
 			S3CannedACL acl = null, List<S3Grant> grants = null, ServerSideEncryptionMethod sseKey = null,
 			ObjectLockLegalHoldStatus objectLockLegalHoldStatus = null, DateTime? objectLockRetainUntilDate = null,
-			ObjectLockMode objectLockMode = null, bool? useChunkEncoding = null, bool? disablePayloadSigning = null)
+			ObjectLockMode objectLockMode = null, bool? useChunkEncoding = null, bool? disablePayloadSigning = null,
+			string expectedBucketOwner = null)
 		{
 			var request = new PutObjectRequest()
 			{
 				BucketName = bucketName,
 				Key = key,
 			};
+
+			if (expectedBucketOwner != null) request.ExpectedBucketOwner = expectedBucketOwner;
 
 			if (body != null) request.ContentBody = body;
 			if (byteBody != null)
@@ -1083,7 +1086,7 @@ namespace s3tests.Test
 			DateTime? ifUnmodifiedSinceDateTime = null, string responseContentType = null,
 			string responseContentLanguage = null, string responseExpires = null,
 			string responseCacheControl = null, string responseContentDisposition = null,
-			string responseContentEncoding = null, int? partNumber = null)
+			string responseContentEncoding = null, int? partNumber = null, string expectedBucketOwner = null)
 		{
 			var request = new GetObjectRequest()
 			{
@@ -1091,6 +1094,7 @@ namespace s3tests.Test
 				Key = key,
 			};
 
+			if (expectedBucketOwner != null) request.ExpectedBucketOwner = expectedBucketOwner;
 			if (versionId != null) request.VersionId = versionId;
 			if (ifMatch != null) request.EtagToMatch = ifMatch;
 			if (ifNoneMatch != null) request.EtagToNotMatch = ifNoneMatch;
@@ -1136,7 +1140,8 @@ namespace s3tests.Test
 			string contentType = null, ChecksumAlgorithm checksumAlgorithm = null,
 			List<KeyValuePair<string, string>> headerList = null,
 			DateTime? modifiedSince = null, DateTime? unmodifiedSince = null,
-			string ifMatch = null, string ifNoneMatch = null)
+			string ifMatch = null, string ifNoneMatch = null,
+			string expectedBucketOwner = null, string expectedSourceBucketOwner = null)
 		{
 			var request = new CopyObjectRequest()
 			{
@@ -1145,6 +1150,8 @@ namespace s3tests.Test
 				DestinationBucket = bucketName,
 				DestinationKey = key,
 			};
+			if (expectedBucketOwner != null) request.ExpectedBucketOwner = expectedBucketOwner;
+			if (expectedSourceBucketOwner != null) request.ExpectedSourceBucketOwner = expectedSourceBucketOwner;
 			if (acl != null) request.CannedACL = acl;
 			if (contentType != null) request.ContentType = contentType;
 			// CopyObject는 본문이 없어 체크섬을 S3가 계산한다. SDK v4가 x-amz-sdk-checksum-algorithm(본문 체크섬용)을
@@ -1227,10 +1234,11 @@ namespace s3tests.Test
 		}
 		public ListObjectsV2Response ListObjectsV2(string bucketName, string delimiter = null, string continuationToken = null,
 					int maxKeys = -1, string prefix = null, string startAfter = null, string encodingTypeName = null,
-					bool? fetchOwner = null)
+					bool? fetchOwner = null, string expectedBucketOwner = null)
 		{
 			var request = new ListObjectsV2Request() { BucketName = bucketName };
 
+			if (expectedBucketOwner != null) request.ExpectedBucketOwner = expectedBucketOwner;
 			if (delimiter != null) request.Delimiter = delimiter;
 			if (continuationToken != null) request.ContinuationToken = continuationToken;
 			if (prefix != null) request.Prefix = prefix;
@@ -1274,13 +1282,15 @@ namespace s3tests.Test
 		}
 		public DeleteObjectResponse DeleteObject(string bucketName, string key, string versionId = null,
 			bool? bypassGovernanceRetention = null, string ifMatch = null,
-			List<KeyValuePair<string, string>> headerList = null)
+			List<KeyValuePair<string, string>> headerList = null, string expectedBucketOwner = null)
 		{
 			var request = new DeleteObjectRequest()
 			{
 				BucketName = bucketName,
 				Key = key
 			};
+
+			if (expectedBucketOwner != null) request.ExpectedBucketOwner = expectedBucketOwner;
 
 			if (versionId != null) request.VersionId = versionId;
 			if (bypassGovernanceRetention.HasValue) request.BypassGovernanceRetention = bypassGovernanceRetention.Value;
@@ -1334,9 +1344,10 @@ namespace s3tests.Test
 		public GetObjectMetadataResponse GetObjectMetadata(string bucketName, string key, string versionId = null, SSECustomerKey sseC = null)
 			=> HeadObject(bucketName, key, versionId: versionId, sseCustomerKey: sseC);
 
-		public HeadBucketResponse HeadBucket(string bucketName)
+		public HeadBucketResponse HeadBucket(string bucketName, string expectedBucketOwner = null)
 		{
 			var request = new HeadBucketRequest() { BucketName = bucketName };
+			if (expectedBucketOwner != null) request.ExpectedBucketOwner = expectedBucketOwner;
 			if (Client == null) return null;
 			var response = Client.HeadBucketAsync(request);
 			response.Wait();
@@ -1720,7 +1731,8 @@ namespace s3tests.Test
 			SSECustomerKey srcEncryptionKey = null, SSECustomerKey destEncryptionKey = null,
 			string eTagToMatch = null, string eTagToNotMatch = null,
 			DateTime? modifiedSince = null, DateTime? unmodifiedSince = null,
-			string ifMatch = null, string ifNoneMatch = null)
+			string ifMatch = null, string ifNoneMatch = null,
+			string expectedBucketOwner = null, string expectedSourceBucketOwner = null)
 		{
 			var request = new CopyPartRequest()
 			{
@@ -1735,6 +1747,8 @@ namespace s3tests.Test
 			};
 
 			if (versionId != null) request.SourceVersionId = versionId;
+			if (expectedBucketOwner != null) request.ExpectedBucketOwner = expectedBucketOwner;
+			if (expectedSourceBucketOwner != null) request.ExpectedSourceBucketOwner = expectedSourceBucketOwner;
 			// 소스 조건(x-amz-copy-source-if-*)
 			if (eTagToMatch != null) request.ETagToMatch = [eTagToMatch];
 			if (eTagToNotMatch != null) request.ETagsToNotMatch = [eTagToNotMatch];

@@ -13,6 +13,7 @@ package org.example.Data;
 public class UserData {
 	public String displayName;
 	public String id;
+	public String accountId;
 	public String email;
 	public String accessKey;
 	public String secretKey;
@@ -22,11 +23,21 @@ public class UserData {
 	public UserData() {
 		displayName = "";
 		id = "";
+		accountId = "";
 		email = "";
 		accessKey = "";
 		secretKey = "";
 		kms = "";
 		xAuthToken = "";
+	}
+
+	/**
+	 * x-amz-expected-bucket-owner 등 버킷 소유자 검증에 사용하는 아이디.
+	 * AWS는 12자리 계정 아이디를 요구하므로 설정에 AccountId가 있으면 그 값을,
+	 * 없으면(ksan 등) 소유자 아이디를 그대로 사용한다.
+	 */
+	public String getExpectedOwnerId() {
+		return (accountId == null || accountId.isBlank()) ? id : accountId;
 	}
 
 	public UserData(String displayName, String userId, String email, String accessKey, String secretKey, String kms) {

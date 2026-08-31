@@ -84,6 +84,7 @@ class S3Config:
         return UserData(
             display_name=self._read_string(section, "DisplayName") or "",
             id=self._read_string(section, "UserID") or "",
+            account_id=self._read_string(section, "AccountId") or "",
             email=self._read_string(section, "Email") or "",
             access_key=self._read_string(section, "AccessKey") or "",
             secret_key=self._read_string(section, "SecretKey") or "",

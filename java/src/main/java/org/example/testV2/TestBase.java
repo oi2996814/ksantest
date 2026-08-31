@@ -3010,6 +3010,16 @@ public class TestBase {
 		}
 		return cal;
 	}
+
+	/** 버킷 소유자의 아이디. AWS는 계정 아이디, ksan은 사용자 아이디를 사용한다. */
+	public String getOwner() {
+		return config.mainUser.getExpectedOwnerId();
+	}
+
+	/** 버킷 소유자가 아닌 사용자의 아이디 */
+	public String getWrongOwner() {
+		return config.altUser.getExpectedOwnerId();
+	}
 	// endregion
 
 }
