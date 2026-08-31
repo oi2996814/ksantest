@@ -55,16 +55,22 @@ namespace s3tests.Test
 			TestId = 2;
 			var client = GetClient();
 			var bucketName = GetNewBucket(client);
-			var key = "TestObjectCopySameBucket";
-			var newKey = "TestObjectCopySameBucketDestination";
+			try
+			{
+				var key = "TestObjectCopySameBucket";
+				var newKey = "TestObjectCopySameBucketDestination";
 
-			client.PutObject(bucketName, key, body: "foo");
+				client.PutObject(bucketName, key, body: "foo");
+				client.CopyObject(bucketName, key, bucketName, newKey);
 
-			client.CopyObject(bucketName, key, bucketName, newKey);
-
-			var response = client.GetObject(bucketName, newKey);
-			var body = S3Utils.GetBody(response);
-			Assert.Equal("foo", body);
+				using var response = client.GetObject(bucketName, newKey);
+				var body = S3Utils.GetBody(response);
+				Assert.Equal("foo", body);
+			}
+			finally
+			{
+				DeleteBucketWithContents(client, bucketName);
+			}
 		}
 
 		[Fact]
@@ -149,17 +155,27 @@ namespace s3tests.Test
 			var altClient = GetAltClient();
 			var bucketName1 = GetNewBucketName();
 			var bucketName2 = GetNewBucketName();
+			var sourceBucketCreated = false;
+			var targetBucketCreated = false;
+			try
+			{
+				client.PutBucket(bucketName1);
+				sourceBucketCreated = true;
+				altClient.PutBucket(bucketName2);
+				targetBucketCreated = true;
 
-			client.PutBucket(bucketName1);
-			altClient.PutBucket(bucketName2);
+				var key1 = "TestObjectCopyNotOwnedBucket-000";
+				var key2 = "TestObjectCopyNotOwnedBucket-001";
+				client.PutObject(bucketName1, key1, body: "foo");
 
-			var key1 = "TestObjectCopyNotOwnedBucket-000";
-			var key2 = "TestObjectCopyNotOwnedBucket-001";
-
-			client.PutObject(bucketName1, key1, body: "foo");
-
-			var e = Assert.Throws<AggregateException>(() => altClient.CopyObject(bucketName1, key1, bucketName2, key2));
-			Assert.Equal(HttpStatusCode.Forbidden, GetStatus(e));
+				var e = Assert.Throws<AggregateException>(() => altClient.CopyObject(bucketName1, key1, bucketName2, key2));
+				Assert.Equal(HttpStatusCode.Forbidden, GetStatus(e));
+			}
+			finally
+			{
+				if (targetBucketCreated) DeleteBucketWithContents(altClient, bucketName2);
+				if (sourceBucketCreated) DeleteBucketWithContents(client, bucketName1);
+			}
 		}
 
 		[Fact]

@@ -2054,6 +2054,24 @@ namespace s3tests.Test
 		#endregion
 
 		#region Bucket Clear
+		/// <summary>테스트에서 즉시 정리해야 하는 버킷을 생성 사용자 권한으로 비운 뒤 삭제한다.</summary>
+		protected void DeleteBucketWithContents(S3Client client, string bucketName)
+		{
+			BucketList.Remove(bucketName);
+			if (Config.NotDelete || client == null || string.IsNullOrWhiteSpace(bucketName)) return;
+
+			var versions = client.ListVersions(bucketName, maxKeys: 1000);
+			while (true)
+			{
+				foreach (var obj in versions.Versions)
+					client.DeleteObject(bucketName, obj.Key, versionId: obj.VersionId);
+				if (versions.IsTruncated != true) break;
+				versions = client.ListVersions(bucketName, maxKeys: 1000);
+			}
+
+			client.DeleteBucket(bucketName);
+		}
+
 		public void BucketClear()
 		{
 			if (Config.NotDelete) return;
