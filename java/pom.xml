@@ -18,7 +18,7 @@
 		<dependency>
 			<groupId>org.mariadb.jdbc</groupId>
 			<artifactId>mariadb-java-client</artifactId>
-			<version>3.4.0</version>
+			<version>3.5.10</version>
 		</dependency>
 		<dependency>
 			<groupId>com.zaxxer</groupId>
@@ -152,6 +152,7 @@
 						<include>ACL.java</include>
 						<include>Analytics.java</include>
 						<include>Backend.java</include>
+						<include>BucketOwner.java</include>
 						<include>CopyObject.java</include>
 						<include>Cors.java</include>
 						<include>CSE.java</include>
